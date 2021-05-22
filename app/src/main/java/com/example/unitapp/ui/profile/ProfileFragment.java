@@ -27,11 +27,18 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textProfile;
-        profileViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        final TextView profile_name = binding.profileName;
+        profileViewModel.getName().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
-                textView.setText(s);
+                profile_name.setText(s);
+            }
+        });
+        final TextView profile_last_name = binding.profileName;
+        profileViewModel.getLastName().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                profile_last_name.setText(s);
             }
         });
         return root;
