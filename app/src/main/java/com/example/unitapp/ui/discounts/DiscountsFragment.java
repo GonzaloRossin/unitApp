@@ -1,4 +1,4 @@
-package com.example.unitapp.ui.dashboard;
+package com.example.unitapp.ui.discounts;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,23 +13,23 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.unitapp.R;
-import com.example.unitapp.databinding.FragmentDashboardBinding;
+import com.example.unitapp.databinding.FragmentDiscountsBinding;
 
-public class DashboardFragment extends Fragment {
+public class DiscountsFragment extends Fragment {
 
-    private DashboardViewModel dashboardViewModel;
-    private FragmentDashboardBinding binding;
+    private DiscountsViewModel discountsViewModel;
+    private FragmentDiscountsBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        dashboardViewModel =
-                new ViewModelProvider(this).get(DashboardViewModel.class);
+        discountsViewModel =
+                new ViewModelProvider(this).get(DiscountsViewModel.class);
 
-        binding = FragmentDashboardBinding.inflate(inflater, container, false);
+        binding = FragmentDiscountsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textDashboard;
-        dashboardViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        final TextView textView = binding.textDiscounts;
+        discountsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);
