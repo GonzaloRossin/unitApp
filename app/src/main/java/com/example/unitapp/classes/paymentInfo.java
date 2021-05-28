@@ -1,8 +1,10 @@
-package com.example.unitapp;
+package com.example.unitapp.classes;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.unitapp.R;
 
 public class paymentInfo extends AppCompatActivity {
 
