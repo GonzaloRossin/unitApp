@@ -13,13 +13,13 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="60dp"
         android:text="@string/best_offers"
         android:textColor="@color/primaryTextColor"
         android:textSize="34sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.136"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,9 +27,10 @@
         android:id="@+id/userRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="116dp"
+        android:layout_marginTop="192dp"
         android:layout_weight="1"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/discount_card" />
@@ -38,13 +39,16 @@
         android:id="@+id/editTextTextPersonName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="60dp"
+        android:layout_marginBottom="548dp"
+        android:backgroundTint="@color/primaryTextColor"
         android:ems="10"
+        android:hint="@string/promo"
         android:inputType="textPersonName"
-        android:text="@string/promo"
         android:textColor="@color/primaryTextColor"
+        android:textColorHint="@color/grey"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.432"
         app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -52,7 +56,7 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_gravity="end|bottom"
-        android:layout_marginBottom="56dp"
+        android:layout_marginBottom="548dp"
         android:clickable="false"
 
         android:focusable="auto"
