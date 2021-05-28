@@ -37,4 +37,5 @@
     <string name="company_logo">Company logo</string>
     <string name="location">Where are you going?</string>
     <string name="favorites">Favorites</string>
+    <string name="confirm">Confirm</string>
 </resources>
