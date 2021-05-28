@@ -1,4 +1,4 @@
-package com.example.unitapp.ui.profile;
+package com.example.unitapp.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.unitapp.databinding.FragmentProfileBinding;
+import com.example.unitapp.ui.profile.ProfileViewModel;
 
 public class ProfileFragment extends Fragment {
 
