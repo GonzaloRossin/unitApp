@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/primaryDarkColor"
     android:visibility="visible"
-    tools:context=".ui.discounts.DiscountsFragment"
+    tools:context=".fragments.DiscountsFragment"
     tools:visibility="visible">
 
     <TextView

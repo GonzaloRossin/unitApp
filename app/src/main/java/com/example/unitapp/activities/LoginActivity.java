@@ -1,4 +1,4 @@
-package com.example.unitapp.ui.login;
+package com.example.unitapp.activities;
 
 import android.app.Activity;
 
@@ -23,8 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.unitapp.R;
-import com.example.unitapp.ui.login.LoginViewModel;
-import com.example.unitapp.ui.login.LoginViewModelFactory;
 import com.example.unitapp.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends AppCompatActivity {

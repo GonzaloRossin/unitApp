@@ -1,4 +1,4 @@
-package com.example.unitapp.ui.profile;
+package com.example.unitapp.classes;
 
 import android.graphics.drawable.Drawable;
 

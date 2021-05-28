@@ -8,7 +8,7 @@
 
         <variable
             name="UserInfo"
-            type="com.example.unitapp.ui.profile.UserInfo" />
+            type="com.example.unitapp.classes.UserInfo" />
 
     </data>
 

@@ -1,4 +1,4 @@
-package com.example.unitapp.ui.discounts;
+package com.example.unitapp.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.unitapp.R;
 import com.example.unitapp.databinding.FragmentDiscountsBinding;
+import com.example.unitapp.ui.discounts.DiscountsViewModel;
 import com.google.android.gms.maps.MapView;
 
 public class DiscountsFragment extends Fragment {
