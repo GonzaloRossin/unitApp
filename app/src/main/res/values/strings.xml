@@ -38,4 +38,7 @@
     <string name="location">Where are you going?</string>
     <string name="favorites">Favorites</string>
     <string name="confirm">Confirm</string>
+    <string name="from">From</string>
+    <string name="choose_your_ride">Choose your ride!</string>
+    <string name="to">To</string>
 </resources>
