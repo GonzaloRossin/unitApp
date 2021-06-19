@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -17,48 +18,28 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.NavHostController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
 import com.example.unitapp.R;
 import com.example.unitapp.fragments.DiscountsFragment;
 import com.example.unitapp.fragments.HomeFragment;
 import com.example.unitapp.fragments.ProfileFragment;
+import com.example.unitapp.viewModel.UserViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.jetbrains.annotations.NotNull;
 
 public class MainActivity extends AppCompatActivity{
 
-    private BottomNavigationView bottomNavigationView;
-    Fragment currentFragment = null;
-    FragmentTransaction ft;
+    private BottomNavigationView bottomNav;
     private int LOCATION_PERMISSION_CODE=1;
+    private UserViewModel userViewModel;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener navListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
-            switch(item.getItemId()){
-                case R.id.navigation_home:
-                    currentFragment = new HomeFragment();
-                    ft = getSupportFragmentManager().beginTransaction();
-                    ft.replace(R.id.content,currentFragment);
-                    ft.commit();
-                    return true;
-                case R.id.navigation_discounts:
-                    currentFragment = new DiscountsFragment();
-                    ft = getSupportFragmentManager().beginTransaction();
-                    ft.replace(R.id.content,currentFragment);
-                    ft.commit();
-                    return true;
-                case R.id.navigation_profile:
-                    currentFragment = new ProfileFragment();
-                    ft = getSupportFragmentManager().beginTransaction();
-                    ft.replace(R.id.content,currentFragment);
-                    ft.commit();
-                    return true;
-            }
-            return false;
-        }
-    };
     private void requestLocationPermission(){
         if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)){
             new AlertDialog.Builder(this).setTitle("Permission needed").
@@ -102,8 +83,20 @@ public class MainActivity extends AppCompatActivity{
             requestLocationPermission();
         }
         setContentView(R.layout.activity_main);
-        BottomNavigationView bottomNav = findViewById(R.id.nav_view);
-        bottomNav.setOnNavigationItemSelectedListener(navListener);
 
+        bottomNav = findViewById(R.id.nav_view);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.mainNavFragment);
+        assert navHostFragment != null;
+        NavigationUI.setupWithNavController(bottomNav,navHostFragment.getNavController());
+
+        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
     }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.mainNavFragment);
+        return navController.navigateUp();
+    }
+
+
 }

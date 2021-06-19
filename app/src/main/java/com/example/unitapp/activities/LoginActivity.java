@@ -28,16 +28,9 @@ import com.example.unitapp.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends AppCompatActivity {
 
-    Button loginBtn;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        loginBtn = findViewById(R.id.login);
-        loginBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
-        });
     }
 }

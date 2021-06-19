@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">unit App</string>
+    <string name="app_name">Unit</string>
     <string name="title_home">Home</string>
     <string name="title_discounts">Discounts</string>
     <string name="title_profile">Profile</string>
@@ -11,7 +11,7 @@
     <string name="account_info">Account info</string>
     <string name="payment">Add payment method</string>
     <string name="best_offers">Best offers</string>
-    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_login">Login</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
