@@ -21,7 +21,6 @@
     <string name="login_failed">"Login failed"</string>
     <string name="welcomeMsg">Get started by</string>
     <string name="welcomeMs">creating your account</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="type_code">Type the verification code</string>
     <string name="payment_info">Payment Info</string>
@@ -41,4 +40,19 @@
     <string name="from">From</string>
     <string name="choose_your_ride">Choose your ride!</string>
     <string name="to">To</string>
+    <string name="From">From</string>
+    <string name="To">To</string>
+    <string name="confirm_your_ride">Confirm your ride</string>
+    <string name="company_name">company</string>
+    <string name="money_symbol">$</string>
+    <string name="price_value">xxx,xx</string>
+    <string name="company_name2">company2</string>
+    <string name="price_value2">xxx,xx</string>
+    <string name="transport_option1">option1</string>
+    <string name="transport_option1_size">x</string>
+    <string name="occupants">occupants:</string>
+    <string name="transport_option2">option 2</string>
+    <string name="transport_option2_size">x</string>
+    <string name="transport_option3">option3</string>
+    <string name="transport_option3_size">x</string>
 </resources>
