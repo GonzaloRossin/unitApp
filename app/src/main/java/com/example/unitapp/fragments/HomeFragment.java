@@ -6,15 +6,23 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.example.unitapp.R;
 import com.example.unitapp.activities.MainActivity;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+
+import java.util.Objects;
 
 import static com.example.unitapp.utils.Constants.MAPVIEW_BUNDLE_KEY;
 
@@ -22,10 +30,8 @@ import static com.example.unitapp.utils.Constants.MAPVIEW_BUNDLE_KEY;
 public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     private MapView mMapView;
+    Button confirmButton;
 
-    public HomeFragment(){
-
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,11 +41,16 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home,container,false);
-
         mMapView = view.findViewById(R.id.mapView2);
-
+        confirmButton= view.findViewById(R.id.button3);
+        confirmButton.setOnClickListener(v -> {
+            ChooseRideFragment chooseRideFragment=new ChooseRideFragment();
+            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true);
+            transaction.replace(R.id.container, chooseRideFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
         initGoogleMap(savedInstanceState);
-
         return view;
     }
 
@@ -53,7 +64,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
         mMapView.getMapAsync(this);
     }
-
     @Override
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
@@ -86,9 +96,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap map) {
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                && ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
