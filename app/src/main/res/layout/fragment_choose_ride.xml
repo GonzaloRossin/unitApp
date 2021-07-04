@@ -34,13 +34,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
-            <EditText
+            <TextView
                 android:id="@+id/fromAddress"
+                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="textPostalAddress"
-                android:textColor="@color/primaryTextColor" />
+                android:textColor="@color/primaryTextColor"
+                android:textSize="25sp"
+                android:text="Current Location" />
 
             <TextView
                 android:id="@+id/To"
@@ -50,23 +52,28 @@
                 android:text="@string/To"
                 android:textColor="@color/primaryTextColor"
                 android:textSize="28sp"
+                android:layout_marginTop="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.428"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
-            <EditText
+            <TextView
                 android:id="@+id/toAddress"
+                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="textPostalAddress"
-                android:textColor="@color/primaryTextColor" />
+                android:textColor="@color/primaryTextColor"
+                android:textSize="25sp"
+                 />
+
 
             <TextView
                 android:id="@+id/ChooseRide"
                 android:layout_width="302dp"
                 android:layout_height="40dp"
+                android:layout_marginTop="10dp"
                 android:fontFamily="sans-serif-light"
                 android:text="@string/choose_your_ride"
                 android:textColor="@color/primaryTextColor"

@@ -4,12 +4,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
 import com.example.unitapp.R;
+import com.google.android.libraries.places.api.model.Place;
+
 
 public class ChooseRideFragment extends Fragment {
+    Place Destination;
+
+    public ChooseRideFragment(Place destination) {
+        Destination = destination;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -17,6 +26,10 @@ public class ChooseRideFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_choose_ride,container,false);
+        View view = inflater.inflate(R.layout.fragment_choose_ride, container, false);
+        TextView fromAddress= view.findViewById(R.id.fromAddress);
+        TextView toAddress=view.findViewById(R.id.toAddress);
+        toAddress.setText(Destination.getAddress());
+        return view;
     }
 }

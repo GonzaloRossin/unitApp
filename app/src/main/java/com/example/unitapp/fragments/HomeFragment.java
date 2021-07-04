@@ -68,17 +68,19 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         initGoogleMap(savedInstanceState);
         confirmButton = view.findViewById(R.id.button3);
         confirmButton.setOnClickListener(v -> {
-            ChooseRideFragment chooseRideFragment = new ChooseRideFragment();
-            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true);
-            transaction.replace(R.id.container, chooseRideFragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
+            if(endAddress!=null){
+                ChooseRideFragment chooseRideFragment = new ChooseRideFragment(endAddress);
+                FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true);
+                transaction.replace(R.id.container, chooseRideFragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+            }
         });
         // Initialize the AutocompleteSupportFragment.
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment) getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
         // Specify the types of place data to return.
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.LAT_LNG));
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.LAT_LNG,Place.Field.ADDRESS));
 
         autocompleteFragment.setCountries("AR");
         autocompleteFragment.setHint("Where are you going?");
