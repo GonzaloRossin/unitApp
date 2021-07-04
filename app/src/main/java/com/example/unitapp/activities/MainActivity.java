@@ -1,34 +1,23 @@
 package com.example.unitapp.activities;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.NavHostController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.unitapp.R;
-import com.example.unitapp.fragments.DiscountsFragment;
-import com.example.unitapp.fragments.HomeFragment;
-import com.example.unitapp.fragments.ProfileFragment;
 import com.example.unitapp.viewModel.UserViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
