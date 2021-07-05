@@ -1,7 +1,11 @@
 package com.example.unitapp.fragments;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,14 +30,26 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.maps.android.PolyUtil;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -47,6 +63,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     Button confirmButton;
     private static final String TAG="info:";
     Place endAddress=null;
+    Location currentLocation;
     GoogleMap appMap;
     PlacesClient placesClient;
 
@@ -70,6 +87,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         confirmButton = view.findViewById(R.id.button3);
         confirmButton.setOnClickListener(v -> {
             if(endAddress!=null){
+
                 ChooseRideFragment chooseRideFragment = new ChooseRideFragment(endAddress);
                 FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true);
                 transaction.replace(R.id.container, chooseRideFragment);
@@ -97,6 +115,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 }
                 endAddress=place;
                 appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
+                requestDirections();
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(endAddress.getLatLng(), 15);
                 appMap.animateCamera(cameraUpdate);
             }
@@ -109,8 +128,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         });
         return view;
     }
-    /*public void requestDirections() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+    public void requestDirections() {
+        if (ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -123,22 +142,96 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
             if (location != null) {
                 StringBuilder sb;
-                Object[] dataTransfer=new Object[4];
                 sb=new StringBuilder();
                 sb.append("https://maps.googleapis.com/maps/api/directions/json?");
                 sb.append("origin="+location.getLatitude()+","+location.getLongitude());
-                sb.append("&destination="+endAddress.getLatitude()+","+endAddress.getLongitude());
+                sb.append("&destination="+ Objects.requireNonNull(endAddress.getLatLng()).latitude+","+endAddress.getLatLng().longitude);
                 sb.append("&key="+"AIzaSyAMElDromNlk946AR6VTHSpkOvaV84Kk2Y");
-                sb.append("&alternatives=true");
 
-                MultipleDirections directions=
-                dataTransfer[0]=appMap;
-                dataTransfer[1]=sb.toString();
-                dataTransfer[2]=new LatLng(location.getLatitude(),location.getLongitude());
-                dataTransfer[3]=new LatLng(endAddress.getLatitude(),endAddress.getLongitude());
+                GetDirectionsData getDirectionsData=new GetDirectionsData();
+                getDirectionsData.execute(sb.toString());
             }
         });
-    }*/
+    }
+    private String requestDirection(String reqUrl) throws IOException {
+        String responseString="";
+        InputStream inputStream=null;
+        HttpURLConnection httpURLConnection=null;
+        URL url= null;
+        try {
+            url = new URL(reqUrl);
+            httpURLConnection= (HttpURLConnection) url.openConnection();
+            httpURLConnection.connect();
+
+            //get response result
+            inputStream=httpURLConnection.getInputStream();
+            InputStreamReader inputStreamReader=new InputStreamReader(inputStream);
+            BufferedReader bufferedReader=new BufferedReader(inputStreamReader);
+            StringBuffer stringBuffer=new StringBuffer();
+            String line="";
+            while((line=bufferedReader.readLine())!=null){
+                stringBuffer.append(line);
+            }
+            responseString=stringBuffer.toString();
+            bufferedReader.close();
+            inputStreamReader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            if(inputStream!=null){
+                inputStream.close();
+            }
+            httpURLConnection.disconnect();
+        }
+        return  responseString;
+    }
+    private class GetDirectionsData extends AsyncTask<String,Void,String> {
+
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String responseString="";
+            try {
+                responseString=requestDirection(strings[0]);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return responseString;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            try {
+                JSONObject jsonObject=new JSONObject(s);
+                JSONArray jsonArray=jsonObject.getJSONArray("routes").getJSONObject(0).getJSONArray("legs")
+                        .getJSONObject(0).getJSONArray("steps");
+                int count=jsonArray.length();
+                String[] polyline_array= new String[count];
+
+                JSONObject jsonObject2;
+
+                for(int i=0;i<count;i++){
+                    jsonObject2=jsonArray.getJSONObject(i);
+                    String polygone=jsonObject2.getJSONObject("polyline").getString("points");
+                    polyline_array[i]=polygone;
+                }
+
+                int count2= polyline_array.length;
+
+                for(int i=0;i<count2;i++){
+                    PolylineOptions options2=new PolylineOptions();
+                    options2.color(Color.BLUE);
+                    options2.width(10);
+                    options2.addAll(PolyUtil.decode(polyline_array[i]));
+                    appMap.addPolyline(options2);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
     private void initGoogleMap(Bundle savedInstanceState) {
         Bundle mapViewBundle = null;
         if (savedInstanceState != null) {
