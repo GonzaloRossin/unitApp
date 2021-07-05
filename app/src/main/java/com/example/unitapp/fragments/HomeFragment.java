@@ -1,12 +1,12 @@
 package com.example.unitapp.fragments;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,7 +48,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Objects;
@@ -63,9 +62,20 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     Button confirmButton;
     private static final String TAG="info:";
     Place endAddress=null;
-    Location currentLocation;
     GoogleMap appMap;
     PlacesClient placesClient;
+    private final int delay = 1000*90; // 1000 (1 Second)*120= 2minutes
+    private final Handler handler = new Handler();
+    private Runnable runnable;
+
+
+    private void updateMap() {
+        if(endAddress!=null){
+            appMap.clear();
+            appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
+            getDirections();
+        }
+    }
 
 
     @Override
@@ -265,6 +275,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     public void onResume() {
         super.onResume();
         mMapView.onResume();
+        handler.postDelayed( runnable = () -> {
+            updateMap();
+            handler.postDelayed(runnable, delay);
+        }, delay);
     }
 
     @Override
