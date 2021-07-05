@@ -1,5 +1,6 @@
 package com.example.unitapp.fragments;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +15,10 @@ import com.google.android.libraries.places.api.model.Place;
 
 public class ChooseRideFragment extends Fragment {
     Place Destination;
+    Location CurrentLocaton;
 
-    public ChooseRideFragment(Place destination) {
+    public ChooseRideFragment(Location location,Place destination) {
+        CurrentLocaton=location;
         Destination = destination;
     }
 
