@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -74,6 +75,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 transaction.replace(R.id.container, chooseRideFragment);
                 transaction.addToBackStack(null);
                 transaction.commit();
+            }else{
+                Toast.makeText(this.requireContext(), "Please enter a destination", Toast.LENGTH_SHORT).show();
             }
         });
         // Initialize the AutocompleteSupportFragment.
