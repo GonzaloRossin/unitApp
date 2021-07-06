@@ -34,6 +34,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.libraries.places.api.Places;
@@ -144,10 +145,21 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     appMap.clear();
                 }
                 endAddress = place;
-                appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
-                getDirections();
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(endAddress.getLatLng(), 15);
-                appMap.animateCamera(cameraUpdate);
+                if(checkPermission()){
+                 fusedLocationClient.getLastLocation().addOnSuccessListener(HomeFragment.super.requireActivity(),location -> {
+                     if(location!=null){
+                         LatLngBounds.Builder builder=new LatLngBounds.Builder();
+                         builder.include(Objects.requireNonNull(endAddress.getLatLng()));
+                         builder.include(new LatLng(location.getLatitude(),location.getLongitude()));
+                         LatLngBounds bounds=builder.build();
+                         CameraUpdate cameraUpdate=CameraUpdateFactory.newLatLngBounds(bounds,100);
+                         appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
+                         getDirections();
+                         appMap.animateCamera(cameraUpdate);
+                     }
+                 });
+                }
+
             }
 
 
