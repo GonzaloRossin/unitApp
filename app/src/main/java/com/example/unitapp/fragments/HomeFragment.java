@@ -7,6 +7,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +21,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.unitapp.R;
+import com.example.unitapp.model.HaversineDistance;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -60,20 +65,29 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private MapView mMapView;
     FusedLocationProviderClient fusedLocationClient;
     Button confirmButton;
-    private static final String TAG="info:";
-    Place endAddress=null;
+    private static final String TAG = "info:";
+    Place endAddress = null;
     GoogleMap appMap;
     PlacesClient placesClient;
-    private final int delay = 1000*90; // 1000 (1 Second)*120= 2minutes
-    private final Handler handler = new Handler();
-    private Runnable runnable;
+    LocationRequest locationRequest;
 
 
     private void updateMap() {
-        if(endAddress!=null){
-            appMap.clear();
-            appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
-            getDirections();
+        if (endAddress != null) {
+            if(checkPermission()){
+                fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(),location -> {
+                    if (location!=null){
+                        appMap.clear();
+                        appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
+                        if(HaversineDistance.distance(new LatLng(location.getLatitude(),location.getLongitude()), endAddress.getLatLng())<=30){
+                            Toast.makeText(this.requireContext(),"You are on destination",Toast.LENGTH_LONG).show();
+                            stopLocationUpdates();
+                        }else{
+                            getDirections();
+                        }
+                    }
+                });
+            }
         }
     }
 
@@ -82,11 +96,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this.requireContext());
-        if(!Places.isInitialized()){
-            Places.initialize(this.requireContext(),"AIzaSyAMElDromNlk946AR6VTHSpkOvaV84Kk2Y");
-            placesClient=Places.createClient(this.requireContext());
+        if (!Places.isInitialized()) {
+            Places.initialize(this.requireContext(), "AIzaSyAMElDromNlk946AR6VTHSpkOvaV84Kk2Y");
+            placesClient = Places.createClient(this.requireContext());
         }
-
+        locationRequest = LocationRequest.create();
+        locationRequest.setInterval(1000*90);
+        locationRequest.setFastestInterval(5000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     @Override
@@ -96,27 +113,17 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         initGoogleMap(savedInstanceState);
         confirmButton = view.findViewById(R.id.button3);
         confirmButton.setOnClickListener(v -> {
-            if(endAddress!=null){
-                if (ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
+            if (endAddress != null && checkPermission()) {
                 fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
                     if (location != null) {
-                        ChooseRideFragment chooseRideFragment = new ChooseRideFragment(location,endAddress);
+                        ChooseRideFragment chooseRideFragment = new ChooseRideFragment(location, endAddress);
                         FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true);
                         transaction.replace(R.id.container, chooseRideFragment);
                         transaction.addToBackStack(null);
                         transaction.commit();
                     }
                 });
-            }else{
+            } else {
                 Toast.makeText(this.requireContext(), "Please enter a destination", Toast.LENGTH_SHORT).show();
             }
         });
@@ -124,7 +131,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment) getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
         // Specify the types of place data to return.
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.LAT_LNG,Place.Field.ADDRESS));
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS));
 
         autocompleteFragment.setCountries("AR");
         autocompleteFragment.setHint("Where are you going?");
@@ -133,10 +140,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
-                if(endAddress!=null){
+                if (endAddress != null) {
                     appMap.clear();
                 }
-                endAddress=place;
+                endAddress = place;
                 appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
                 getDirections();
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(endAddress.getLatLng(), 15);
@@ -151,64 +158,66 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         });
         return view;
     }
-    public void getDirections() {
-        if (ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
-            if (location != null) {
-                StringBuilder sb;
-                sb=new StringBuilder();
-                sb.append("https://maps.googleapis.com/maps/api/directions/json?");
-                sb.append("origin="+location.getLatitude()+","+location.getLongitude());
-                sb.append("&destination="+ Objects.requireNonNull(endAddress.getLatLng()).latitude+","+endAddress.getLatLng().longitude);
-                sb.append("&key="+"AIzaSyAMElDromNlk946AR6VTHSpkOvaV84Kk2Y");
 
-                GetDirectionsData getDirectionsData=new GetDirectionsData();
-                getDirectionsData.execute(sb.toString());
-            }
-        });
+    public void getDirections() {
+        if(checkPermission()){
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
+                if (location != null) {
+                    StringBuilder sb;
+                    sb = new StringBuilder();
+                    sb.append("https://maps.googleapis.com/maps/api/directions/json?");
+                    sb.append("origin=" + location.getLatitude() + "," + location.getLongitude());
+                    sb.append("&destination=" + Objects.requireNonNull(endAddress.getLatLng()).latitude + "," + endAddress.getLatLng().longitude);
+                    sb.append("&key=" + "AIzaSyAMElDromNlk946AR6VTHSpkOvaV84Kk2Y");
+
+                    GetDirectionsData getDirectionsData = new GetDirectionsData();
+                    getDirectionsData.execute(sb.toString());
+                }
+            });
+        }
     }
+
     private String requestDirection(String reqUrl) throws IOException {
-        String responseString="";
-        InputStream inputStream=null;
-        HttpURLConnection httpURLConnection=null;
-        URL url= null;
+        String responseString = "";
+        InputStream inputStream = null;
+        HttpURLConnection httpURLConnection = null;
+        URL url = null;
         try {
             url = new URL(reqUrl);
-            httpURLConnection= (HttpURLConnection) url.openConnection();
+            httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.connect();
 
             //get response result
-            inputStream=httpURLConnection.getInputStream();
-            InputStreamReader inputStreamReader=new InputStreamReader(inputStream);
-            BufferedReader bufferedReader=new BufferedReader(inputStreamReader);
-            StringBuffer stringBuffer=new StringBuffer();
-            String line="";
-            while((line=bufferedReader.readLine())!=null){
+            inputStream = httpURLConnection.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            StringBuffer stringBuffer = new StringBuffer();
+            String line = "";
+            while ((line = bufferedReader.readLine()) != null) {
                 stringBuffer.append(line);
             }
-            responseString=stringBuffer.toString();
+            responseString = stringBuffer.toString();
             bufferedReader.close();
             inputStreamReader.close();
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            if(inputStream!=null){
+        } finally {
+            if (inputStream != null) {
                 inputStream.close();
             }
             httpURLConnection.disconnect();
         }
-        return  responseString;
+        return responseString;
     }
-    private class GetDirectionsData extends AsyncTask<String,Void,String> {
+
+    private class GetDirectionsData extends AsyncTask<String, Void, String> {
 
 
         @Override
         protected String doInBackground(String... strings) {
-            String responseString="";
+            String responseString = "";
             try {
-                responseString=requestDirection(strings[0]);
+                responseString = requestDirection(strings[0]);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -219,24 +228,24 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         @Override
         protected void onPostExecute(String s) {
             try {
-                JSONObject jsonObject=new JSONObject(s);
-                JSONArray jsonArray=jsonObject.getJSONArray("routes").getJSONObject(0).getJSONArray("legs")
+                JSONObject jsonObject = new JSONObject(s);
+                JSONArray jsonArray = jsonObject.getJSONArray("routes").getJSONObject(0).getJSONArray("legs")
                         .getJSONObject(0).getJSONArray("steps");
-                int count=jsonArray.length();
-                String[] polyline_array= new String[count];
+                int count = jsonArray.length();
+                String[] polyline_array = new String[count];
 
                 JSONObject jsonObject2;
 
-                for(int i=0;i<count;i++){
-                    jsonObject2=jsonArray.getJSONObject(i);
-                    String polygone=jsonObject2.getJSONObject("polyline").getString("points");
-                    polyline_array[i]=polygone;
+                for (int i = 0; i < count; i++) {
+                    jsonObject2 = jsonArray.getJSONObject(i);
+                    String polygone = jsonObject2.getJSONObject("polyline").getString("points");
+                    polyline_array[i] = polygone;
                 }
 
-                int count2= polyline_array.length;
+                int count2 = polyline_array.length;
 
-                for(int i=0;i<count2;i++){
-                    PolylineOptions options2=new PolylineOptions();
+                for (int i = 0; i < count2; i++) {
+                    PolylineOptions options2 = new PolylineOptions();
                     options2.color(Color.BLUE);
                     options2.width(10);
                     options2.addAll(PolyUtil.decode(polyline_array[i]));
@@ -248,6 +257,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
         }
     }
+
     private void initGoogleMap(Bundle savedInstanceState) {
         Bundle mapViewBundle = null;
         if (savedInstanceState != null) {
@@ -275,47 +285,54 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     public void onResume() {
         super.onResume();
         mMapView.onResume();
-        handler.postDelayed( runnable = () -> {
-            updateMap();
-            handler.postDelayed(runnable, delay);
-        }, delay);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         mMapView.onStart();
+        startLocationUpdates();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         mMapView.onStop();
+        stopLocationUpdates();
     }
 
     @Override
     public void onMapReady(@NotNull GoogleMap map) {
-        appMap=map;
-        if (ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
+        appMap = map;
+        if(checkPermission()){
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
+                if (location != null) {
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 17);
+                    map.animateCamera(cameraUpdate);
+                }
+            });
+            map.setMyLocationEnabled(true);
         }
-        fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
-            if(location!=null){
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(),location.getLongitude()), 17);
-                map.animateCamera(cameraUpdate);
-            }
-        });
-        map.setMyLocationEnabled(true);
+    }
+
+    LocationCallback locationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(@NonNull @NotNull LocationResult locationResult) {
+            super.onLocationResult(locationResult);
+            updateMap();
+        }
+    };
+    private boolean checkPermission(){
+        return ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+    private void startLocationUpdates() {
+        if(checkPermission()){
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+        }
+    }
+    private void stopLocationUpdates(){
+        fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
     @Override
