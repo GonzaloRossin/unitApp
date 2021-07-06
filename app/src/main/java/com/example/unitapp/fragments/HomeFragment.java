@@ -73,7 +73,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
 
     private void updateMap() {
-        if (endAddress != null) {
+        /*if (endAddress != null) {
             if(checkPermission()){
                 fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(),location -> {
                     if (location!=null){
@@ -88,7 +88,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     }
                 });
             }
-        }
+        }*/
     }
 
 
