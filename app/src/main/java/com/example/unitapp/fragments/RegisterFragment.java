@@ -73,10 +73,6 @@ public class RegisterFragment extends Fragment {
                 defaultResourceHandler(r);
             }
         });
-        /*Intent intent = new Intent(getActivity(), MainActivity.class);
-        startActivity(intent);
-        requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        requireActivity().finish();*/
     }
 
     private void defaultResourceHandler(Resource<?> resource) {
