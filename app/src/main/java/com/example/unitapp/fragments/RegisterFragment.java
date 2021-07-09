@@ -2,7 +2,6 @@ package com.example.unitapp.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,29 +15,29 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.unitapp.R;
 import com.example.unitapp.activities.MainActivity;
-import com.example.unitapp.classes.UserInfo;
-import com.example.unitapp.databinding.FragmentLoginBinding;
+import com.example.unitapp.databinding.FragmentRegisterBinding;
 import com.example.unitapp.viewModel.UserViewModel;
 
 import org.jetbrains.annotations.NotNull;
 
-public class LoginFragment extends Fragment {
-
+public class RegisterFragment extends Fragment {
     private EditText username;
     private EditText password;
+    private EditText phone;
     private UserViewModel viewModel;
 
     @Nullable
     @org.jetbrains.annotations.Nullable
     @Override
     public View onCreateView(@NonNull @NotNull LayoutInflater inflater, @Nullable @org.jetbrains.annotations.Nullable ViewGroup container, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
-        FragmentLoginBinding binding = FragmentLoginBinding.inflate(getLayoutInflater());
+        FragmentRegisterBinding binding = FragmentRegisterBinding.inflate(getLayoutInflater());
         username = binding.username;
         password = binding.password;
+        phone = binding.phone;
 
         View view = binding.getRoot();
-        Button signinBtn = view.findViewById(R.id.signin);
-        signinBtn.setOnClickListener(v -> trySignin());
+        Button registerBtn = view.findViewById(R.id.signin);
+        registerBtn.setOnClickListener(v -> tryRegister());
 
         return view;
 
@@ -50,8 +49,8 @@ public class LoginFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
     }
 
-    private void trySignin(){
-        //hacer todo el signIn
+    private void tryRegister(){
+        //hacer todo el register
 
         //chequear token... Lo pongo de una para poder entrar mientras
         Intent intent = new Intent(getActivity(), MainActivity.class);

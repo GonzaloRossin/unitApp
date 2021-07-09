@@ -24,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.unitapp.R;
-import com.example.unitapp.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -33,4 +32,5 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
     }
+
 }
