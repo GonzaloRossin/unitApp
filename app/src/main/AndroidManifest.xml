@@ -12,6 +12,7 @@
         android:icon="@drawable/logo_app"
         android:roundIcon="@drawable/logo_app"
         android:supportsRtl="true"
+        android:name=".UnitApp"
         android:theme="@style/Theme.UnitApp"
         android:label="Unit">
         <activity android:name=".activities.LoadingActivity"
