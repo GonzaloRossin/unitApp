@@ -12,7 +12,7 @@ import retrofit2.http.POST;
 
 public interface ApiUserService {
     @POST("user/register")
-    LiveData<ApiResponse<Void>> register(@Body RegisterCredentials registerCredentials);
+    LiveData<ApiResponse<LoginResponse>> register(@Body RegisterCredentials registerCredentials);
 
     @POST("user/login")
     LiveData<ApiResponse<LoginResponse>> login(@Body LoginCredentials loginCredentials);

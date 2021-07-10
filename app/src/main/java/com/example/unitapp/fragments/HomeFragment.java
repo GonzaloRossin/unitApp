@@ -117,7 +117,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             if (endAddress != null && checkPermission()) {
                 fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
                     if (location != null) {
-                        ChooseRideFragment chooseRideFragment = new ChooseRideFragment(location, endAddress);
+                        ChooseRideFragment chooseRideFragment = new ChooseRideFragment(location, endAddress, endAddress.getLatLng());
                         FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true);
                         transaction.replace(R.id.container, chooseRideFragment);
                         transaction.addToBackStack(null);

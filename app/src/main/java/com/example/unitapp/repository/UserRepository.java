@@ -19,12 +19,12 @@ public class UserRepository {
         this.apiService = ApiClient.create(app, ApiUserService.class);
     }
 
-    public LiveData<Resource<Void>> register(RegisterCredentials registerCredentials) {
-        return new NetworkBoundResource<Void, Void>() {
+    public LiveData<Resource<LoginResponse>> register(RegisterCredentials registerCredentials) {
+        return new NetworkBoundResource<LoginResponse, LoginResponse>() {
             @NonNull
             @NotNull
             @Override
-            protected LiveData<ApiResponse<Void>> createCall() {
+            protected LiveData<ApiResponse<LoginResponse>> createCall() {
                 return apiService.register(registerCredentials);
             }
         }.asLiveData();
