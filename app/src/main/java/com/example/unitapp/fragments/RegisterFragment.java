@@ -67,8 +67,10 @@ public class RegisterFragment extends Fragment {
         RegisterCredentials credentials = new RegisterCredentials(username.getText().toString(), password.getText().toString(), lPhone);
         app.getUserRepository().register(credentials).observe(getViewLifecycleOwner(), r -> {
             if(r.getStatus() == Status.SUCCESS) {
-                NavController navController = Navigation.findNavController(v);
-                navController.navigate(RegisterFragmentDirections.actionRegisterFragmentToLoginFragment());
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                startActivity(intent);
+                requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                requireActivity().finish();
             } else {
                 defaultResourceHandler(r);
             }
