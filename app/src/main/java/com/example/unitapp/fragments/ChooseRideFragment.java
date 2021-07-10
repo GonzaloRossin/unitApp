@@ -18,6 +18,7 @@ import com.example.unitapp.repository.Resource;
 import com.example.unitapp.repository.Status;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.material.card.MaterialCardView;
 
 import java.util.Objects;
 
@@ -37,12 +38,37 @@ public class ChooseRideFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_choose_ride, container, false);
+        final MaterialCardView unit_x = view.findViewById(R.id.unit_x);
+        final MaterialCardView unit_xl = view.findViewById(R.id.unit_xl);
+        final MaterialCardView unit_flash = view.findViewById(R.id.unit_flash);
+        final MaterialCardView uber_cardView = view.findViewById(R.id.uber_cardview);
+        final MaterialCardView cabify_cardView = view.findViewById(R.id.cabify_cardview);
+        unit_x.setOnClickListener(v -> {
+            unit_x.toggle();
+            uber_cardView.setVisibility(View.VISIBLE);
+            cabify_cardView.setVisibility(View.VISIBLE);
+            if(unit_xl.isChecked()) unit_xl.toggle();
+            if(unit_flash.isChecked()) unit_flash.toggle();
+        });
+        unit_xl.setOnClickListener(v -> {
+            unit_xl.toggle();
+            uber_cardView.setVisibility(View.VISIBLE);
+            cabify_cardView.setVisibility(View.VISIBLE);
+            if(unit_x.isChecked()) unit_x.toggle();
+            if(unit_flash.isChecked()) unit_flash.toggle();
+        });
+        unit_flash.setOnClickListener(v -> {
+            unit_flash.toggle();
+            uber_cardView.setVisibility(View.VISIBLE);
+            cabify_cardView.setVisibility(View.VISIBLE);
+            if(unit_x.isChecked()) unit_x.toggle();
+            if(unit_xl.isChecked()) unit_xl.toggle();
+        });
         TextView fromAddress = view.findViewById(R.id.fromAddress);
         TextView toAddress = view.findViewById(R.id.toAddress);
         toAddress.setText(destination.getAddress());
