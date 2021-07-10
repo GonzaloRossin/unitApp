@@ -50,22 +50,37 @@ public class ChooseRideFragment extends Fragment {
         final MaterialCardView cabify_cardView = view.findViewById(R.id.cabify_cardview);
         unit_x.setOnClickListener(v -> {
             unit_x.toggle();
-            uber_cardView.setVisibility(View.VISIBLE);
-            cabify_cardView.setVisibility(View.VISIBLE);
+            if(unit_x.isChecked()) {
+                uber_cardView.setVisibility(View.VISIBLE);
+                cabify_cardView.setVisibility(View.VISIBLE);
+            } else {
+                uber_cardView.setVisibility(View.INVISIBLE);
+                cabify_cardView.setVisibility(View.INVISIBLE);
+            }
             if(unit_xl.isChecked()) unit_xl.toggle();
             if(unit_flash.isChecked()) unit_flash.toggle();
         });
         unit_xl.setOnClickListener(v -> {
             unit_xl.toggle();
-            uber_cardView.setVisibility(View.VISIBLE);
-            cabify_cardView.setVisibility(View.VISIBLE);
+            if(unit_xl.isChecked()) {
+                uber_cardView.setVisibility(View.VISIBLE);
+                cabify_cardView.setVisibility(View.VISIBLE);
+            } else {
+                uber_cardView.setVisibility(View.INVISIBLE);
+                cabify_cardView.setVisibility(View.INVISIBLE);
+            }
             if(unit_x.isChecked()) unit_x.toggle();
             if(unit_flash.isChecked()) unit_flash.toggle();
         });
         unit_flash.setOnClickListener(v -> {
             unit_flash.toggle();
-            uber_cardView.setVisibility(View.VISIBLE);
-            cabify_cardView.setVisibility(View.VISIBLE);
+            if(unit_flash.isChecked()) {
+                uber_cardView.setVisibility(View.VISIBLE);
+                cabify_cardView.setVisibility(View.VISIBLE);
+            } else {
+                uber_cardView.setVisibility(View.INVISIBLE);
+                cabify_cardView.setVisibility(View.INVISIBLE);
+            }
             if(unit_x.isChecked()) unit_x.toggle();
             if(unit_xl.isChecked()) unit_xl.toggle();
         });

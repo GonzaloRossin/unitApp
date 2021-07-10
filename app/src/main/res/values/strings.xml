@@ -59,4 +59,6 @@
     <string name="username">E-Mail</string>
     <string name="password">Password</string>
     <string name="register">register</string>
+    <string name="request_drivers">Request drivers</string>
+    <string name="find_drivers">FIND DRIVERS</string>
 </resources>

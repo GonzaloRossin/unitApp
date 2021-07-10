@@ -42,6 +42,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.maps.android.PolyUtil;
 
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +66,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     private MapView mMapView;
     FusedLocationProviderClient fusedLocationClient;
-    Button confirmButton;
+    ExtendedFloatingActionButton confirmButton;
     private static final String TAG = "info:";
     Place endAddress = null;
     GoogleMap appMap;
@@ -112,7 +113,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         mMapView = view.findViewById(R.id.mapView2);
         initGoogleMap(savedInstanceState);
-        confirmButton = view.findViewById(R.id.button3);
+        confirmButton = view.findViewById(R.id.floating_action_button);
         confirmButton.setOnClickListener(v -> {
             if (endAddress != null && checkPermission()) {
                 fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
