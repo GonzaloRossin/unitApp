@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.unitapp.R;
 import com.example.unitapp.UnitApp;
+import com.example.unitapp.api.model.Driver;
 import com.example.unitapp.api.model.Error;
 import com.example.unitapp.repository.Resource;
 import com.example.unitapp.repository.Status;
@@ -20,6 +21,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.material.card.MaterialCardView;
 
+import java.util.List;
 import java.util.Objects;
 
 import kotlin.Unit;
@@ -48,14 +50,17 @@ public class ChooseRideFragment extends Fragment {
         final MaterialCardView unit_flash = view.findViewById(R.id.unit_flash);
         final MaterialCardView uber_cardView = view.findViewById(R.id.uber_cardview);
         final MaterialCardView cabify_cardView = view.findViewById(R.id.cabify_cardview);
+        final TextView confirm_ride = view.findViewById(R.id.confirm_ride);
         unit_x.setOnClickListener(v -> {
             unit_x.toggle();
             if(unit_x.isChecked()) {
                 uber_cardView.setVisibility(View.VISIBLE);
                 cabify_cardView.setVisibility(View.VISIBLE);
+                confirm_ride.setVisibility(View.VISIBLE);
             } else {
                 uber_cardView.setVisibility(View.INVISIBLE);
                 cabify_cardView.setVisibility(View.INVISIBLE);
+                confirm_ride.setVisibility(View.INVISIBLE);
             }
             if(unit_xl.isChecked()) unit_xl.toggle();
             if(unit_flash.isChecked()) unit_flash.toggle();
@@ -65,9 +70,11 @@ public class ChooseRideFragment extends Fragment {
             if(unit_xl.isChecked()) {
                 uber_cardView.setVisibility(View.VISIBLE);
                 cabify_cardView.setVisibility(View.VISIBLE);
+                confirm_ride.setVisibility(View.VISIBLE);
             } else {
                 uber_cardView.setVisibility(View.INVISIBLE);
                 cabify_cardView.setVisibility(View.INVISIBLE);
+                confirm_ride.setVisibility(View.INVISIBLE);
             }
             if(unit_x.isChecked()) unit_x.toggle();
             if(unit_flash.isChecked()) unit_flash.toggle();
@@ -77,9 +84,11 @@ public class ChooseRideFragment extends Fragment {
             if(unit_flash.isChecked()) {
                 uber_cardView.setVisibility(View.VISIBLE);
                 cabify_cardView.setVisibility(View.VISIBLE);
+                confirm_ride.setVisibility(View.VISIBLE);
             } else {
                 uber_cardView.setVisibility(View.INVISIBLE);
                 cabify_cardView.setVisibility(View.INVISIBLE);
+                confirm_ride.setVisibility(View.INVISIBLE);
             }
             if(unit_x.isChecked()) unit_x.toggle();
             if(unit_xl.isChecked()) unit_xl.toggle();
@@ -94,7 +103,8 @@ public class ChooseRideFragment extends Fragment {
                 destCoordinates.longitude)
                 .observe(getViewLifecycleOwner(), r -> {
                     if(r.getStatus() == Status.SUCCESS) {
-                        Log.d("TEST","TEST");
+                        List<Driver> drivers = Objects.requireNonNull(r.getData()).getDrivers();
+                        drivers.forEach(driver -> Log.d("DRIVER", driver.getName()));
                     } else {
                         defaultResourceHandler(r);
                     }

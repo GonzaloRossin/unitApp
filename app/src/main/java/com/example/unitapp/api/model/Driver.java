@@ -3,6 +3,7 @@ package com.example.unitapp.api.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+
 public class Driver {
 
     @SerializedName("name")
@@ -14,12 +15,15 @@ public class Driver {
     @SerializedName("longitude")
     @Expose
     private double longitude;
+    @SerializedName("capacity")
+    @Expose
+    private int capacity;
     @SerializedName("plate")
     @Expose
     private String plate;
     @SerializedName("estimated_pickup")
     @Expose
-    private double estimatedPickup;
+    private int estimatedPickup;
     @SerializedName("estimated_price")
     @Expose
     private int estimatedPrice;
@@ -47,12 +51,14 @@ public class Driver {
      * @param estimatedPickup
      * @param serviceId
      * @param longitude
+     * @param capacity
      */
-    public Driver(String name, double latitude, double longitude, String plate, double estimatedPickup, int estimatedPrice, double estimatedArrival, int serviceId) {
+    public Driver(String name, double latitude, double longitude, int capacity, String plate, int estimatedPickup, int estimatedPrice, double estimatedArrival, int serviceId) {
         super();
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.capacity = capacity;
         this.plate = plate;
         this.estimatedPickup = estimatedPickup;
         this.estimatedPrice = estimatedPrice;
@@ -84,6 +90,14 @@ public class Driver {
         this.longitude = longitude;
     }
 
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
     public String getPlate() {
         return plate;
     }
@@ -92,11 +106,11 @@ public class Driver {
         this.plate = plate;
     }
 
-    public double getEstimatedPickup() {
+    public int getEstimatedPickup() {
         return estimatedPickup;
     }
 
-    public void setEstimatedPickup(double estimatedPickup) {
+    public void setEstimatedPickup(int estimatedPickup) {
         this.estimatedPickup = estimatedPickup;
     }
 
