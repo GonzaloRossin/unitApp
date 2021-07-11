@@ -21,8 +21,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.material.card.MaterialCardView;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import kotlin.Unit;
 
@@ -31,6 +38,7 @@ public class ChooseRideFragment extends Fragment {
     Place destination;
     Location currentLocation;
     LatLng destCoordinates;
+
     public ChooseRideFragment(Location location, Place dest, LatLng targetLocation) {
         currentLocation = location;
         destination = dest;
@@ -42,6 +50,36 @@ public class ChooseRideFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    private void setPriceTags(AtomicReference<List<Driver>> drivers,
+                              int minCapacity,
+                              MaterialCardView uber_cardView,
+                              MaterialCardView cabify_cardView,
+                              TextView uberPrice,
+                              TextView cabifyPrice) {
+        Optional<Driver> uberDriver = drivers.get()
+                .stream()
+                .filter(driver -> driver.getServiceId() == 1 && driver.getCapacity() == minCapacity)
+                .min(Comparator.comparing(Driver::getEstimatedPrice));
+        Optional<Driver> cabifyDriver = drivers.get()
+                .stream()
+                .filter(driver -> driver.getServiceId() == 2 && driver.getCapacity() == minCapacity)
+                .min(Comparator.comparing(Driver::getEstimatedPrice));
+
+        if(uberDriver.isPresent()) {
+            uber_cardView.setVisibility(View.VISIBLE);
+            uberPrice.setText(String.valueOf(uberDriver.get().getEstimatedPrice()));
+        } else {
+            uber_cardView.setVisibility(View.GONE);
+        }
+
+        if(cabifyDriver.isPresent()) {
+            cabify_cardView.setVisibility(View.VISIBLE);
+            cabifyPrice.setText(String.valueOf(cabifyDriver.get().getEstimatedPrice()));
+        } else {
+            cabify_cardView.setVisibility(View.GONE);
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_choose_ride, container, false);
@@ -51,12 +89,17 @@ public class ChooseRideFragment extends Fragment {
         final MaterialCardView uber_cardView = view.findViewById(R.id.uber_cardview);
         final MaterialCardView cabify_cardView = view.findViewById(R.id.cabify_cardview);
         final TextView confirm_ride = view.findViewById(R.id.confirm_ride);
+        final TextView uberPrice = view.findViewById(R.id.option1_price);
+        final TextView cabifyPrice = view.findViewById(R.id.option2_price);
+        AtomicReference<List<Driver>> drivers = new AtomicReference<>();
         unit_x.setOnClickListener(v -> {
             unit_x.toggle();
             if(unit_x.isChecked()) {
                 uber_cardView.setVisibility(View.VISIBLE);
                 cabify_cardView.setVisibility(View.VISIBLE);
                 confirm_ride.setVisibility(View.VISIBLE);
+                setPriceTags(drivers, 3, uber_cardView, cabify_cardView, uberPrice, cabifyPrice);
+
             } else {
                 uber_cardView.setVisibility(View.INVISIBLE);
                 cabify_cardView.setVisibility(View.INVISIBLE);
@@ -71,6 +114,7 @@ public class ChooseRideFragment extends Fragment {
                 uber_cardView.setVisibility(View.VISIBLE);
                 cabify_cardView.setVisibility(View.VISIBLE);
                 confirm_ride.setVisibility(View.VISIBLE);
+                setPriceTags(drivers, 6, uber_cardView, cabify_cardView, uberPrice, cabifyPrice);
             } else {
                 uber_cardView.setVisibility(View.INVISIBLE);
                 cabify_cardView.setVisibility(View.INVISIBLE);
@@ -85,6 +129,7 @@ public class ChooseRideFragment extends Fragment {
                 uber_cardView.setVisibility(View.VISIBLE);
                 cabify_cardView.setVisibility(View.VISIBLE);
                 confirm_ride.setVisibility(View.VISIBLE);
+                setPriceTags(drivers, 2, uber_cardView, cabify_cardView, uberPrice, cabifyPrice);
             } else {
                 uber_cardView.setVisibility(View.INVISIBLE);
                 cabify_cardView.setVisibility(View.INVISIBLE);
@@ -106,15 +151,16 @@ public class ChooseRideFragment extends Fragment {
                     if(r.getStatus() == Status.SUCCESS) {
                         requireActivity().findViewById(R.id.choose_ride_bar).setVisibility(View.GONE);
                         requireActivity().findViewById(R.id.choose_ride).setVisibility(View.VISIBLE);
-                        List<Driver> drivers = Objects.requireNonNull(r.getData()).getDrivers();
+                        drivers.set(Objects.requireNonNull(r.getData()).getDrivers());
                         int maxCapacity = 0;
-                        for(int i = 0; i < drivers.size(); i++) {
-                            Driver driver = drivers.get(i);
+                        for(int i = 0; i < drivers.get().size(); i++) {
+                            Driver driver = drivers.get().get(i);
                             if(driver.getCapacity() > maxCapacity) maxCapacity = driver.getCapacity();
                         }
-                        if(maxCapacity >= 2) unit_flash.setVisibility(View.VISIBLE);
-                        if(maxCapacity >= 3) unit_x.setVisibility(View.VISIBLE);
-                        if(maxCapacity >= 6) unit_xl.setVisibility(View.VISIBLE);
+                        if(maxCapacity == 2) unit_flash.setVisibility(View.VISIBLE);
+                        if(maxCapacity == 3) unit_x.setVisibility(View.VISIBLE);
+                        if(maxCapacity == 6) unit_xl.setVisibility(View.VISIBLE);
+
                     } else {
                         defaultResourceHandler(r);
                     }
