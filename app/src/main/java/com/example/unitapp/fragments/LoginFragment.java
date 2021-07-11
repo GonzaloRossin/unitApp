@@ -64,6 +64,7 @@ public class LoginFragment extends Fragment {
         LoginCredentials credentials = new LoginCredentials(username.getText().toString(), password.getText().toString());
         app.getUserRepository().login(credentials).observe(getViewLifecycleOwner(), r -> {
             if(r.getStatus() == Status.SUCCESS) {
+                requireActivity().findViewById(R.id.login_progress_bar).setVisibility(View.GONE);
                 app.getPreferences().setAuthToken(Objects.requireNonNull(r.getData()).getToken());
                 app.getPreferences().setCabifyToken(r.getData().getCabifyId());
                 app.getPreferences().setUberToken(r.getData().getUberId());
@@ -80,8 +81,10 @@ public class LoginFragment extends Fragment {
     private void defaultResourceHandler(Resource<?> resource) {
         switch (resource.getStatus()) {
             case LOADING:
+                requireActivity().findViewById(R.id.login_progress_bar).setVisibility(View.VISIBLE);
                 break;
             case ERROR:
+                requireActivity().findViewById(R.id.login_progress_bar).setVisibility(View.GONE);
                 Error error = resource.getError();
                 Toast.makeText(requireContext(), Objects.requireNonNull(error).getCode() + ": " + error.getDescription(), Toast.LENGTH_SHORT).show();
                 break;

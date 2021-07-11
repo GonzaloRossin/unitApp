@@ -23,7 +23,7 @@ public class Driver {
     private String plate;
     @SerializedName("estimated_pickup")
     @Expose
-    private int estimatedPickup;
+    private double estimatedPickup;
     @SerializedName("estimated_price")
     @Expose
     private int estimatedPrice;
@@ -53,7 +53,7 @@ public class Driver {
      * @param longitude
      * @param capacity
      */
-    public Driver(String name, double latitude, double longitude, int capacity, String plate, int estimatedPickup, int estimatedPrice, double estimatedArrival, int serviceId) {
+    public Driver(String name, double latitude, double longitude, int capacity, String plate, double estimatedPickup, int estimatedPrice, double estimatedArrival, int serviceId) {
         super();
         this.name = name;
         this.latitude = latitude;
@@ -106,7 +106,7 @@ public class Driver {
         this.plate = plate;
     }
 
-    public int getEstimatedPickup() {
+    public double getEstimatedPickup() {
         return estimatedPickup;
     }
 
