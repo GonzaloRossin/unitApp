@@ -64,6 +64,13 @@
             android:textColor="@color/primaryTextColor"
             android:textSize="20sp" />
 
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/choose_ride_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:indicatorColor="#FFFFFFFF"
+            android:indeterminate="true" />
 
         <TextView
             android:id="@+id/choose_ride"
@@ -71,6 +78,7 @@
             android:layout_height="40dp"
             android:layout_marginTop="10dp"
             android:fontFamily="sans-serif-light"
+            android:visibility="invisible"
             android:text="@string/choose_your_ride"
             android:textColor="@color/primaryTextColor"
             android:textSize="28sp"
@@ -96,8 +104,8 @@
                     android:layout_height="match_parent"
                     android:layout_marginTop="20dp"
                     android:layout_marginEnd="15dp"
-                    android:layout_marginRight="15dp"
                     android:checkable="true"
+                    android:visibility="gone"
                     app:cardCornerRadius="20dp">
 
                     <LinearLayout
@@ -164,8 +172,8 @@
                     android:layout_height="match_parent"
                     android:layout_marginTop="20dp"
                     android:layout_marginEnd="15dp"
-                    android:layout_marginRight="15dp"
                     android:checkable="true"
+                    android:visibility="gone"
                     app:cardCornerRadius="20dp">
 
                     <LinearLayout
@@ -212,7 +220,6 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="end"
                                 android:layout_marginStart="3dp"
-                                android:layout_marginLeft="3dp"
                                 android:layout_marginTop="6dp"
                                 android:fontFamily="sans-serif-medium"
                                 android:text="@string/transport_option1_size"
@@ -236,8 +243,8 @@
                     android:layout_height="match_parent"
                     android:layout_marginTop="20dp"
                     android:layout_marginEnd="15dp"
-                    android:layout_marginRight="15dp"
                     android:checkable="true"
+                    android:visibility="gone"
                     app:cardCornerRadius="20dp">
 
                     <LinearLayout
@@ -302,6 +309,7 @@
             </LinearLayout>
         </HorizontalScrollView>
 
+
         <TextView
             android:id="@+id/confirm_ride"
             android:layout_width="wrap_content"
@@ -328,7 +336,6 @@
                 android:layout_gravity="start"
                 android:layout_marginVertical="4dp"
                 android:layout_marginStart="15dp"
-                android:layout_marginLeft="15dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/company_name"
                 android:textColor="@color/primaryDarkColor"
@@ -340,7 +347,6 @@
                 android:layout_gravity="end"
                 android:layout_marginVertical="4dp"
                 android:layout_marginEnd="100dp"
-                android:layout_marginRight="100dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/money_symbol"
                 android:textColor="@color/primaryDarkColor"
@@ -353,7 +359,6 @@
                 android:layout_gravity="end"
                 android:layout_marginVertical="4dp"
                 android:layout_marginEnd="25dp"
-                android:layout_marginRight="100dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/price_value"
                 android:textColor="@color/primaryDarkColor"
@@ -376,7 +381,6 @@
                 android:layout_gravity="start"
                 android:layout_marginVertical="4dp"
                 android:layout_marginStart="15dp"
-                android:layout_marginLeft="15dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/company_name2"
                 android:textColor="@color/primaryDarkColor"
@@ -388,7 +392,6 @@
                 android:layout_gravity="end"
                 android:layout_marginVertical="4dp"
                 android:layout_marginEnd="100dp"
-                android:layout_marginRight="100dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/money_symbol"
                 android:textColor="@color/primaryDarkColor"
@@ -401,7 +404,6 @@
                 android:layout_gravity="end"
                 android:layout_marginVertical="4dp"
                 android:layout_marginEnd="25dp"
-                android:layout_marginRight="100dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/price_value2"
                 android:textColor="@color/primaryDarkColor"

@@ -97,26 +97,39 @@ public class ChooseRideFragment extends Fragment {
         TextView toAddress = view.findViewById(R.id.toAddress);
         toAddress.setText(destination.getAddress());
         UnitApp app = ((UnitApp)requireActivity().getApplication());
+
         app.getRideRepository().getAvailableDrivers(currentLocation.getLatitude(),
                 destCoordinates.latitude,
                 currentLocation.getLongitude(),
                 destCoordinates.longitude)
                 .observe(getViewLifecycleOwner(), r -> {
                     if(r.getStatus() == Status.SUCCESS) {
+                        requireActivity().findViewById(R.id.choose_ride_bar).setVisibility(View.GONE);
+                        requireActivity().findViewById(R.id.choose_ride).setVisibility(View.VISIBLE);
                         List<Driver> drivers = Objects.requireNonNull(r.getData()).getDrivers();
-                        drivers.forEach(driver -> Log.d("DRIVER", driver.getName()));
+                        int maxCapacity = 0;
+                        for(int i = 0; i < drivers.size(); i++) {
+                            Driver driver = drivers.get(i);
+                            if(driver.getCapacity() > maxCapacity) maxCapacity = driver.getCapacity();
+                        }
+                        if(maxCapacity >= 2) unit_flash.setVisibility(View.VISIBLE);
+                        if(maxCapacity >= 3) unit_x.setVisibility(View.VISIBLE);
+                        if(maxCapacity >= 6) unit_xl.setVisibility(View.VISIBLE);
                     } else {
                         defaultResourceHandler(r);
                     }
                 });
+
         return view;
     }
 
     private void defaultResourceHandler(Resource<?> resource) {
         switch (resource.getStatus()) {
             case LOADING:
+                requireActivity().findViewById(R.id.choose_ride_bar).setVisibility(View.VISIBLE);
                 break;
             case ERROR:
+                requireActivity().findViewById(R.id.choose_ride_bar).setVisibility(View.GONE);
                 Error error = resource.getError();
                 Toast.makeText(requireContext(), Objects.requireNonNull(error).getCode() + ": " + error.getDescription(), Toast.LENGTH_SHORT).show();
                 break;
