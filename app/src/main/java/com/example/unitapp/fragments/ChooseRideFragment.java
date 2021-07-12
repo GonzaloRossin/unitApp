@@ -42,6 +42,8 @@ public class ChooseRideFragment extends Fragment {
     Place destination;
     Location currentLocation;
     LatLng destCoordinates;
+    Optional<Driver> uberDriver;
+    Optional<Driver> cabifyDriver;
 
     public ChooseRideFragment(Location location, Place dest, LatLng targetLocation) {
         currentLocation = location;
@@ -60,11 +62,11 @@ public class ChooseRideFragment extends Fragment {
                               MaterialCardView cabify_cardView,
                               TextView uberPrice,
                               TextView cabifyPrice) {
-        Optional<Driver> uberDriver = drivers.get()
+        uberDriver = drivers.get()
                 .stream()
                 .filter(driver -> driver.getServiceId() == 1 && driver.getCapacity() == minCapacity)
                 .min(Comparator.comparing(Driver::getEstimatedPrice));
-        Optional<Driver> cabifyDriver = drivers.get()
+        cabifyDriver = drivers.get()
                 .stream()
                 .filter(driver -> driver.getServiceId() == 2 && driver.getCapacity() == minCapacity)
                 .min(Comparator.comparing(Driver::getEstimatedPrice));
@@ -118,7 +120,8 @@ public class ChooseRideFragment extends Fragment {
         });
 
         confirmEFAB.setOnClickListener(v -> {
-            HomeFragment homeFragment = new HomeFragment();
+            Driver selectedDriver = uberDriver.orElseGet(() -> cabifyDriver.get());
+            HomeFragment homeFragment = new HomeFragment(true, selectedDriver);
             FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true);
             transaction.replace(R.id.mainNavFragment, homeFragment);
             transaction.addToBackStack(null);
