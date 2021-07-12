@@ -18,22 +18,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-<<<<<<< HEAD
-=======
+
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
->>>>>>> origin/master
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.unitapp.R;
 import com.example.unitapp.UnitApp;
 import com.example.unitapp.api.model.DirectionResponse;
-<<<<<<< HEAD
-=======
 import com.example.unitapp.api.model.Driver;
 import com.example.unitapp.api.model.Leg;
->>>>>>> origin/master
 import com.example.unitapp.api.model.Route;
 import com.example.unitapp.model.BeginJourneyEvent;
 import com.example.unitapp.model.CurrentJourneyEvent;
