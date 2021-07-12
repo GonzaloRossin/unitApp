@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity{
         bottomNav = findViewById(R.id.nav_view);
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.mainNavFragment);
         assert navHostFragment != null;
-        NavigationUI.setupWithNavController(bottomNav,navHostFragment.getNavController());
+        NavigationUI.setupWithNavController(bottomNav, navHostFragment.getNavController());
 
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
     }

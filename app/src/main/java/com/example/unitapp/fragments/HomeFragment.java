@@ -17,12 +17,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentContainerView;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.unitapp.R;
 import com.example.unitapp.UnitApp;
 import com.example.unitapp.api.model.DirectionResponse;
+import com.example.unitapp.api.model.Driver;
 import com.example.unitapp.api.model.Leg;
 import com.example.unitapp.api.model.Route;
 import com.example.unitapp.api.model.Step;
@@ -78,6 +81,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private static final String KEY = "AIzaSyAMElDromNlk946AR6VTHSpkOvaV84Kk2Y";
     Place endAddress = null;
     GoogleMap appMap;
+    Driver driver;
     PlacesClient placesClient;
     LocationRequest locationRequest;
     private List<LatLng> polyLineList;
@@ -88,6 +92,15 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private LatLng startPosition, endPosition;
     private int index, next;
     private Polyline blackPolyline, greyPolyLine;
+    private boolean isDriverConfirmed = false;
+    public HomeFragment(boolean isDriverConfirmed, Driver driver) {
+        this.isDriverConfirmed = isDriverConfirmed;
+        this.driver = driver;
+    }
+
+    public HomeFragment() {
+
+    }
 
 
     private void updateMap() {
@@ -130,7 +143,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         mMapView = view.findViewById(R.id.mapView2);
         initGoogleMap(savedInstanceState);
         confirmButton = view.findViewById(R.id.floating_action_button);
-
+    if(!isDriverConfirmed) {
         confirmButton.setOnClickListener(v -> {
             if (endAddress != null && checkPermission()) {
                 fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
@@ -185,6 +198,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
+    } else {
+        confirmButton.setVisibility(View.GONE);
+       
+    }
 
 
         return view;
