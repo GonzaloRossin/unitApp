@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.unitapp.R;
 import com.example.unitapp.UnitApp;
@@ -19,7 +21,9 @@ import com.example.unitapp.repository.Resource;
 import com.example.unitapp.repository.Status;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import org.w3c.dom.Text;
 
@@ -91,7 +95,36 @@ public class ChooseRideFragment extends Fragment {
         final TextView confirm_ride = view.findViewById(R.id.confirm_ride);
         final TextView uberPrice = view.findViewById(R.id.option1_price);
         final TextView cabifyPrice = view.findViewById(R.id.option2_price);
+        final MaterialButton confirmEFAB = view.findViewById(R.id.request_driver_btn);
         AtomicReference<List<Driver>> drivers = new AtomicReference<>();
+        uber_cardView.setOnClickListener(v -> {
+            uber_cardView.toggle();
+            if(uber_cardView.isChecked()) {
+                confirmEFAB.setVisibility(View.VISIBLE);
+            } else {
+                confirmEFAB.setVisibility(View.INVISIBLE);
+            }
+            if(cabify_cardView.isChecked()) cabify_cardView.toggle();
+        });
+
+        cabify_cardView.setOnClickListener(v -> {
+            cabify_cardView.toggle();
+            if(cabify_cardView.isChecked()) {
+                confirmEFAB.setVisibility(View.VISIBLE);
+            } else {
+                confirmEFAB.setVisibility(View.INVISIBLE);
+            }
+            if(uber_cardView.isChecked()) uber_cardView.toggle();
+        });
+
+        confirmEFAB.setOnClickListener(v -> {
+            HomeFragment homeFragment = new HomeFragment();
+            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true);
+            transaction.replace(R.id.mainNavFragment, homeFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
+
         unit_x.setOnClickListener(v -> {
             unit_x.toggle();
             if(unit_x.isChecked()) {

@@ -1,19 +1,23 @@
 package com.example.unitapp.fragments;
 
 import android.Manifest;
+import android.animation.ValueAnimator;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.unitapp.R;
@@ -22,7 +26,11 @@ import com.example.unitapp.api.model.DirectionResponse;
 import com.example.unitapp.api.model.Leg;
 import com.example.unitapp.api.model.Route;
 import com.example.unitapp.api.model.Step;
+import com.example.unitapp.model.BeginJourneyEvent;
+import com.example.unitapp.model.CurrentJourneyEvent;
+import com.example.unitapp.model.EndJourneyEvent;
 import com.example.unitapp.model.HaversineDistance;
+import com.example.unitapp.utils.JourneyEventBus;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -34,10 +42,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.SquareCap;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -47,11 +60,13 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.maps.android.PolyUtil;
 
 import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 import static com.example.unitapp.utils.Constants.MAPVIEW_BUNDLE_KEY;
+import static com.google.android.gms.maps.model.JointType.ROUND;
 
 
 public class HomeFragment extends Fragment implements OnMapReadyCallback {
@@ -65,6 +80,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     GoogleMap appMap;
     PlacesClient placesClient;
     LocationRequest locationRequest;
+    private List<LatLng> polyLineList;
+    private Marker marker;
+    private float v;
+    private double lat, lng;
+    private Handler handler;
+    private LatLng startPosition, endPosition;
+    private int index, next;
+    private Polyline blackPolyline, greyPolyLine;
 
 
     private void updateMap() {
@@ -107,13 +130,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         mMapView = view.findViewById(R.id.mapView2);
         initGoogleMap(savedInstanceState);
         confirmButton = view.findViewById(R.id.floating_action_button);
+
         confirmButton.setOnClickListener(v -> {
             if (endAddress != null && checkPermission()) {
                 fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
                     if (location != null) {
                         ChooseRideFragment chooseRideFragment = new ChooseRideFragment(location, endAddress, endAddress.getLatLng());
                         FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true);
-                        transaction.replace(R.id.container, chooseRideFragment);
+                        transaction.replace(R.id.mainNavFragment, chooseRideFragment);
                         transaction.addToBackStack(null);
                         transaction.commit();
                     }
@@ -161,6 +185,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
+
+
         return view;
     }
 
@@ -181,12 +207,130 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                             polylineOptions.width(10);
                             polylineOptions.addAll(PolyUtil.decode(polylinePoint));
                             appMap.addPolyline(polylineOptions);
-
+                            //drawPolyLineAndAnimateCar(PolyUtil.decode(polylinePoint), new LatLng(location.getLatitude(), location.getLongitude()));
                         }
                     });
                 }
             });
         }
+    }
+
+    private void drawPolyLineAndAnimateCar(List<LatLng> polyLineList, LatLng currentLocation) {
+        //Adjusting bounds
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (LatLng latLng : polyLineList) {
+            builder.include(latLng);
+        }
+        LatLngBounds bounds = builder.build();
+        CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 2);
+        appMap.animateCamera(mCameraUpdate);
+
+        PolylineOptions polylineOptions = new PolylineOptions();
+        polylineOptions.color(Color.GRAY);
+        polylineOptions.width(5);
+        polylineOptions.startCap(new SquareCap());
+        polylineOptions.endCap(new SquareCap());
+        polylineOptions.jointType(ROUND);
+        polylineOptions.addAll(polyLineList);
+        greyPolyLine = appMap.addPolyline(polylineOptions);
+
+        PolylineOptions blackPolylineOptions = new PolylineOptions();
+        blackPolylineOptions.width(5);
+        blackPolylineOptions.color(Color.BLACK);
+        blackPolylineOptions.startCap(new SquareCap());
+        blackPolylineOptions.endCap(new SquareCap());
+        blackPolylineOptions.jointType(ROUND);
+        blackPolyline = appMap.addPolyline(blackPolylineOptions);
+
+
+        ValueAnimator polylineAnimator = ValueAnimator.ofInt(0, 100);
+        polylineAnimator.setDuration(2000);
+        polylineAnimator.setInterpolator(new LinearInterpolator());
+        polylineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                List<LatLng> points = greyPolyLine.getPoints();
+                int percentValue = (int) valueAnimator.getAnimatedValue();
+                int size = points.size();
+                int newPoints = (int) (size * (percentValue / 100.0f));
+                List<LatLng> p = points.subList(0, newPoints);
+                blackPolyline.setPoints(p);
+            }
+        });
+        polylineAnimator.start();
+        marker = appMap.addMarker(new MarkerOptions().position(currentLocation)
+                .flat(true)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car)));
+        handler = new Handler();
+        index = -1;
+        next = 1;
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (index < polyLineList.size() - 1) {
+                    index++;
+                    next = index + 1;
+                }
+                if (index < polyLineList.size() - 1) {
+                    startPosition = polyLineList.get(index);
+                    endPosition = polyLineList.get(next);
+                }
+                if (index == 0) {
+                    BeginJourneyEvent beginJourneyEvent = new BeginJourneyEvent();
+                    beginJourneyEvent.setBeginLatLng(startPosition);
+                    JourneyEventBus.getInstance().setOnJourneyBegin(beginJourneyEvent);
+                }
+                if (index == polyLineList.size() - 1) {
+                    EndJourneyEvent endJourneyEvent = new EndJourneyEvent();
+                    endJourneyEvent.setEndJourneyLatLng(new LatLng(polyLineList.get(index).latitude,
+                            polyLineList.get(index).longitude));
+                    JourneyEventBus.getInstance().setOnJourneyEnd(endJourneyEvent);
+                }
+                ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
+                valueAnimator.setDuration(3000);
+                valueAnimator.setInterpolator(new LinearInterpolator());
+                valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                        v = valueAnimator.getAnimatedFraction();
+                        lng = v * endPosition.longitude + (1 - v)
+                                * startPosition.longitude;
+                        lat = v * endPosition.latitude + (1 - v)
+                                * startPosition.latitude;
+                        LatLng newPos = new LatLng(lat, lng);
+                        CurrentJourneyEvent currentJourneyEvent = new CurrentJourneyEvent();
+                        currentJourneyEvent.setCurrentLatLng(newPos);
+                        JourneyEventBus.getInstance().setOnJourneyUpdate(currentJourneyEvent);
+                        marker.setPosition(newPos);
+                        marker.setAnchor(0.5f, 0.5f);
+                        marker.setRotation(getBearing(startPosition, newPos));
+                        /*appMap.animateCamera(CameraUpdateFactory.newCameraPosition
+                                (new CameraPosition.Builder().target(newPos)
+                                        .zoom(15.5f).build()));*/
+                    }
+                });
+                valueAnimator.start();
+                if (index != polyLineList.size() - 1) {
+                    handler.postDelayed(this, 3000);
+                }
+            }
+        }, 3000);
+    }
+
+    private float getBearing(LatLng begin, LatLng end) {
+        double lat = Math.abs(begin.latitude - end.latitude);
+        double lng = Math.abs(begin.longitude - end.longitude);
+
+        double v = Math.toDegrees(Math.atan(lng / lat));
+        if (begin.latitude < end.latitude && begin.longitude < end.longitude)
+            return (float) v;
+        else if (begin.latitude >= end.latitude && begin.longitude < end.longitude)
+            return (float) ((90 - v) + 90);
+        else if (begin.latitude >= end.latitude && begin.longitude >= end.longitude)
+            return (float) (v + 180);
+        else if (begin.latitude < end.latitude && begin.longitude >= end.longitude)
+            return (float) ((90 - v) + 270);
+        return -1;
     }
 
     private void initGoogleMap(Bundle savedInstanceState) {
@@ -286,4 +430,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         super.onLowMemory();
         mMapView.onLowMemory();
     }
+
+
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
@@ -14,7 +14,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <TextView
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:ems="10"
-            android:text="Current Location"
+            android:text="@string/current_location"
             android:textColor="@color/primaryTextColor"
             android:textSize="20sp" />
 
@@ -69,8 +69,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:indicatorColor="#FFFFFFFF"
-            android:indeterminate="true" />
+            android:indeterminate="true"
+            app:indicatorColor="#FFFFFFFF" />
 
         <TextView
             android:id="@+id/choose_ride"
@@ -78,10 +78,10 @@
             android:layout_height="40dp"
             android:layout_marginTop="10dp"
             android:fontFamily="sans-serif-light"
-            android:visibility="invisible"
             android:text="@string/choose_your_ride"
             android:textColor="@color/primaryTextColor"
             android:textSize="28sp"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.428"
             app:layout_constraintStart_toStartOf="parent"
@@ -129,6 +129,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="100dp"
                             android:layout_gravity="center"
+                            android:contentDescription="@string/placeholder"
                             android:src="@drawable/unit_flash" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -139,6 +140,7 @@
                                 android:id="@+id/imageView7"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:contentDescription="@string/placeholder"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
@@ -197,6 +199,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="100dp"
                             android:layout_gravity="center"
+                            android:contentDescription="@string/placeholder"
                             android:src="@drawable/unit_x" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -207,6 +210,7 @@
                                 android:id="@+id/imageView5"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:contentDescription="@string/placeholder"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
@@ -268,6 +272,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="100dp"
                             android:layout_gravity="center"
+                            android:contentDescription="@string/placeholder"
                             android:src="@drawable/unit_xl" />
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -278,6 +283,7 @@
                                 android:id="@+id/imageView6"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:contentDescription="@string/placeholder"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
@@ -326,6 +332,7 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_marginVertical="5dp"
+            android:checkable="true"
             android:visibility="invisible"
             app:cardCornerRadius="10dp">
 
@@ -371,6 +378,7 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_marginVertical="10dp"
+            android:checkable="true"
             android:visibility="invisible"
             app:cardCornerRadius="10dp">
 
@@ -410,6 +418,18 @@
                 android:textSize="24sp" />
         </com.google.android.material.card.MaterialCardView>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/request_driver_btn"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:textColor="#FF000000"
+            android:layout_height="wrap_content"
+            android:text="@string/request_driver"
+            android:backgroundTint="@color/quantum_white_100"
+            android:layout_gravity="center"
+            />
+
     </LinearLayout>
 
-</androidx.core.widget.NestedScrollView>
+
+</ScrollView>

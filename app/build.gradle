@@ -36,6 +36,9 @@ android {
 }
 
 dependencies {
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.0'
+    implementation 'com.jakewharton.rxrelay3:rxrelay:3.0.0'
 
     def retrofit_version = "2.9.0"
     def ok_http_version = "4.9.1"

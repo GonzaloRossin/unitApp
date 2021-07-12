@@ -61,4 +61,8 @@
     <string name="register">register</string>
     <string name="request_drivers">Request drivers</string>
     <string name="find_drivers">FIND DRIVERS</string>
+    <string name="fab_confirm">Confirm</string>
+    <string name="current_location">Current Location</string>
+    <string name="placeholder">Placeholder</string>
+    <string name="request_driver">REQUEST DRIVER</string>
 </resources>
