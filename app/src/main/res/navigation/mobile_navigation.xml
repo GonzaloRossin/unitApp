@@ -24,6 +24,11 @@
             app:argType="com.example.unitapp.api.model.Driver"
             app:nullable="true"
             android:defaultValue="@null" />
+        <argument
+            android:name="driverDest"
+            app:argType="com.google.android.gms.maps.model.LatLng"
+            android:defaultValue="@null"
+            app:nullable="true" />
     </fragment>
 
     <fragment
@@ -58,6 +63,9 @@
             <argument
                 android:name="confirmDriver"
                 app:argType="com.example.unitapp.api.model.Driver"/>
+            <argument
+                android:name="driverDest"
+                app:argType="com.google.android.gms.maps.model.LatLng" />
         </action>
         <argument
             android:name="location"

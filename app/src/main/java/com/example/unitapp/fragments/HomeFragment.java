@@ -2,6 +2,7 @@ package com.example.unitapp.fragments;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -23,6 +24,8 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -49,6 +52,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -56,6 +60,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -70,6 +75,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 import static com.example.unitapp.utils.Constants.MAPVIEW_BUNDLE_KEY;
 import static com.google.android.gms.maps.model.JointType.ROUND;
@@ -84,7 +90,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private static final String KEY = "AIzaSyAMElDromNlk946AR6VTHSpkOvaV84Kk2Y";
     Place endAddress = null;
     GoogleMap appMap;
-    Driver driver;
+    Driver confirmedDriver;
     PlacesClient placesClient;
     LocationRequest locationRequest;
     private List<LatLng> polyLineList;
@@ -92,11 +98,12 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private float v;
     private double lat, lng;
     private Handler handler;
-    private LatLng startPosition, endPosition;
+    private LatLng driverDestination;
     private Location currentLocation = null;
     private int index, next;
     private Polyline blackPolyline, greyPolyLine;
-
+    private MutableLiveData<Boolean> driverReached;
+    LatLng startPosition, endPosition;
 
     public HomeFragment() {
 
@@ -122,15 +129,31 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         locationRequest.setInterval(5000);
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        driverReached = new MutableLiveData<>(false);
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         mMapView = view.findViewById(R.id.mapView2);
         initGoogleMap(savedInstanceState);
         confirmButton = view.findViewById(R.id.floating_action_button);
-        Driver confirmedDriver = HomeFragmentArgs.fromBundle(getArguments()).getConfirmDriver();
+        confirmedDriver = HomeFragmentArgs.fromBundle(getArguments()).getConfirmDriver();
+
+        driverReached.observe(getViewLifecycleOwner(), r -> {
+            if (r) {
+                driverDestination = HomeFragmentArgs.fromBundle(getArguments()).getDriverDest();
+                fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+                fusedLocationClient.getLastLocation()
+                        .addOnSuccessListener(requireActivity(), location -> {
+                            if (location != null) {
+                                LatLng start = new LatLng(location.getLatitude(), location.getLongitude());
+                                getDirections(start, driverDestination, true);
+                            }
+                        });
+            }
+        });
 
         confirmButton.setOnClickListener(v -> {
             if (endAddress != null && checkPermission()) {
@@ -170,7 +193,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                             LatLngBounds bounds = builder.build();
                             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 100);
                             appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
-                            getDirections(new LatLng(location.getLatitude(), location.getLongitude()), endAddress.getLatLng());
+                            getDirections(new LatLng(location.getLatitude(), location.getLongitude()), endAddress.getLatLng(), false);
                             appMap.animateCamera(cameraUpdate);
                         }
                     });
@@ -195,6 +218,15 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             });
             driver_info.setVisibility(View.VISIBLE);
             cancel_ride.setVisibility(View.VISIBLE);
+            LatLng start = new LatLng(confirmedDriver.getLatitude(), confirmedDriver.getLongitude());
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(requireActivity(), location -> {
+                        if (location != null) {
+                            LatLng end = new LatLng(location.getLatitude(), location.getLongitude());
+                            getDirections(start, end, true);
+                        }
+                    });
         }
 
         return view;
@@ -213,7 +245,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                             stopLocationUpdates();
                             appMap.clear();
                         } else {
-                            getDirections(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), endAddress.getLatLng());
+                            getDirections(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), endAddress.getLatLng(), false);
                         }
                     }
                 });
@@ -221,7 +253,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    public void getDirections(LatLng startLocation, LatLng endLocation) {
+    public void getDirections(LatLng startLocation, LatLng endLocation, boolean playAnimation) {
         UnitApp app = ((UnitApp) requireActivity().getApplication());
         String origin = startLocation.latitude + "," + startLocation.longitude;
         String destination = endLocation.latitude + "," + endLocation.longitude;
@@ -234,8 +266,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 polylineOptions.color(Color.BLUE);
                 polylineOptions.width(10);
                 polylineOptions.addAll(PolyUtil.decode(polylinePoint));
-                appMap.addPolyline(polylineOptions);
-                //drawPolyLineAndAnimateCar(PolyUtil.decode(polylinePoint), startLocation);
+                if (!playAnimation) appMap.addPolyline(polylineOptions);
+                if (playAnimation)
+                    drawPolyLineAndAnimateCar(PolyUtil.decode(polylinePoint), startLocation);
             }
         });
     }
@@ -271,25 +304,28 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         ValueAnimator polylineAnimator = ValueAnimator.ofInt(0, 100);
         polylineAnimator.setDuration(2000);
         polylineAnimator.setInterpolator(new LinearInterpolator());
-        polylineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                List<LatLng> points = greyPolyLine.getPoints();
-                int percentValue = (int) valueAnimator.getAnimatedValue();
-                int size = points.size();
-                int newPoints = (int) (size * (percentValue / 100.0f));
-                List<LatLng> p = points.subList(0, newPoints);
-                blackPolyline.setPoints(p);
-            }
+        polylineAnimator.addUpdateListener(valueAnimator -> {
+            List<LatLng> points = greyPolyLine.getPoints();
+            int percentValue = (int) valueAnimator.getAnimatedValue();
+            int size = points.size();
+            int newPoints = (int) (size * (percentValue / 100.0f));
+            List<LatLng> p = points.subList(0, newPoints);
+            blackPolyline.setPoints(p);
         });
         polylineAnimator.start();
-        marker = appMap.addMarker(new MarkerOptions().position(currentLocation)
+        if (marker == null) marker = appMap.addMarker(new MarkerOptions().position(currentLocation)
                 .flat(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car)));
         handler = new Handler();
         index = -1;
         next = 1;
+
         handler.postDelayed(new Runnable() {
+            @Override
+            protected void finalize() throws Throwable {
+                super.finalize();
+            }
+
             @Override
             public void run() {
                 if (index < polyLineList.size() - 1) {
@@ -314,32 +350,35 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
                 valueAnimator.setDuration(3000);
                 valueAnimator.setInterpolator(new LinearInterpolator());
-                valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                        v = valueAnimator.getAnimatedFraction();
-                        lng = v * endPosition.longitude + (1 - v)
-                                * startPosition.longitude;
-                        lat = v * endPosition.latitude + (1 - v)
-                                * startPosition.latitude;
-                        LatLng newPos = new LatLng(lat, lng);
-                        CurrentJourneyEvent currentJourneyEvent = new CurrentJourneyEvent();
-                        currentJourneyEvent.setCurrentLatLng(newPos);
-                        JourneyEventBus.getInstance().setOnJourneyUpdate(currentJourneyEvent);
-                        marker.setPosition(newPos);
-                        marker.setAnchor(0.5f, 0.5f);
-                        marker.setRotation(getBearing(startPosition, newPos));
-                        /*appMap.animateCamera(CameraUpdateFactory.newCameraPosition
-                                (new CameraPosition.Builder().target(newPos)
-                                        .zoom(15.5f).build()));*/
-                    }
+                valueAnimator.addUpdateListener(valueAnimator1 -> {
+                    v = valueAnimator1.getAnimatedFraction();
+                    lng = v * endPosition.longitude + (1 - v)
+                            * startPosition.longitude;
+                    lat = v * endPosition.latitude + (1 - v)
+                            * startPosition.latitude;
+                    LatLng newPos = new LatLng(lat, lng);
+                    CurrentJourneyEvent currentJourneyEvent = new CurrentJourneyEvent();
+                    currentJourneyEvent.setCurrentLatLng(newPos);
+                    JourneyEventBus.getInstance().setOnJourneyUpdate(currentJourneyEvent);
+                    marker.setPosition(newPos);
+                    marker.setAnchor(0.5f, 0.5f);
+                    marker.setRotation(getBearing(startPosition, newPos));
+                    appMap.animateCamera(CameraUpdateFactory.newCameraPosition
+                            (new CameraPosition.Builder().target(newPos)
+                                    .zoom(15.5f).build()));
                 });
                 valueAnimator.start();
                 if (index != polyLineList.size() - 1) {
                     handler.postDelayed(this, 3000);
+                } else {
+                    greyPolyLine.remove();
+                    blackPolyline.remove();
+                    driverReached.postValue(true);
                 }
+
             }
         }, 3000);
+
     }
 
     private float getBearing(LatLng begin, LatLng end) {
