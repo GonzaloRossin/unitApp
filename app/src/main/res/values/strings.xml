@@ -56,7 +56,7 @@
     <string name="transport_option2_size">6</string>
     <string name="transport_option3">Unit Flash</string>
     <string name="transport_option3_size">2</string>
-    <string name="username">E-Mail</string>
+    <string name="username">E-mail</string>
     <string name="password">Password</string>
     <string name="register">register</string>
     <string name="request_drivers">Request drivers</string>
