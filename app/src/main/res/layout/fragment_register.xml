@@ -60,7 +60,7 @@
             android:layout_height="55dp"
             android:layout_marginTop="36dp"
             android:ems="10"
-            android:hint="Phone number"
+            android:hint="@string/phone_number"
             android:inputType="number"
             android:textColor="#FFFFFF"
             android:textColorHint="#6AFFFFFF"
