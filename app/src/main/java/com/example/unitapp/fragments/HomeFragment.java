@@ -175,16 +175,13 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                         if (r.getStatus() == com.example.unitapp.repository.Status.SUCCESS) {
                             DirectionResponse directionResponse = r.getData();
                             Route mainRoute = Objects.requireNonNull(directionResponse).getRoutes().get(0);
-                            Leg mainLeg = mainRoute.getLegs().get(0);
-                            List<Step> steps = mainLeg.getSteps();
-                            for (int i = 0; i < steps.size(); i++) {
-                                String polylinePoint = steps.get(i).getPolyline().getPoints();
-                                PolylineOptions polylineOptions = new PolylineOptions();
-                                polylineOptions.color(Color.BLUE);
-                                polylineOptions.width(10);
-                                polylineOptions.addAll(PolyUtil.decode(polylinePoint));
-                                appMap.addPolyline(polylineOptions);
-                            }
+                            String polylinePoint = mainRoute.getOverviewPolyline().getPoints();
+                            PolylineOptions polylineOptions = new PolylineOptions();
+                            polylineOptions.color(Color.BLUE);
+                            polylineOptions.width(10);
+                            polylineOptions.addAll(PolyUtil.decode(polylinePoint));
+                            appMap.addPolyline(polylineOptions);
+
                         }
                     });
                 }
