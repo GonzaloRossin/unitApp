@@ -3,16 +3,12 @@ package com.example.unitapp.fragments;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +17,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.unitapp.R;
+import com.example.unitapp.UnitApp;
+import com.example.unitapp.api.model.DirectionResponse;
+import com.example.unitapp.api.model.Leg;
+import com.example.unitapp.api.model.Route;
+import com.example.unitapp.api.model.Step;
 import com.example.unitapp.model.HaversineDistance;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -46,17 +47,8 @@ import com.google.android.material.floatingactionbutton.ExtendedFloatingActionBu
 import com.google.maps.android.PolyUtil;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import static com.example.unitapp.utils.Constants.MAPVIEW_BUNDLE_KEY;
@@ -68,6 +60,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     FusedLocationProviderClient fusedLocationClient;
     ExtendedFloatingActionButton confirmButton;
     private static final String TAG = "info:";
+    private static final String KEY = "AIzaSyAMElDromNlk946AR6VTHSpkOvaV84Kk2Y";
     Place endAddress = null;
     GoogleMap appMap;
     PlacesClient placesClient;
@@ -103,7 +96,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             placesClient = Places.createClient(this.requireContext());
         }
         locationRequest = LocationRequest.create();
-        locationRequest.setInterval(1000*90);
+        locationRequest.setInterval(1000 * 90);
         locationRequest.setFastestInterval(5000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
@@ -146,23 +139,22 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     appMap.clear();
                 }
                 endAddress = place;
-                if(checkPermission()){
-                 fusedLocationClient.getLastLocation().addOnSuccessListener(HomeFragment.super.requireActivity(),location -> {
-                     if(location!=null){
-                         LatLngBounds.Builder builder=new LatLngBounds.Builder();
-                         builder.include(Objects.requireNonNull(endAddress.getLatLng()));
-                         builder.include(new LatLng(location.getLatitude(),location.getLongitude()));
-                         LatLngBounds bounds=builder.build();
-                         CameraUpdate cameraUpdate=CameraUpdateFactory.newLatLngBounds(bounds,100);
-                         appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
-                         getDirections();
-                         appMap.animateCamera(cameraUpdate);
-                     }
-                 });
+                if (checkPermission()) {
+                    fusedLocationClient.getLastLocation().addOnSuccessListener(HomeFragment.super.requireActivity(), location -> {
+                        if (location != null) {
+                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                            builder.include(Objects.requireNonNull(endAddress.getLatLng()));
+                            builder.include(new LatLng(location.getLatitude(), location.getLongitude()));
+                            LatLngBounds bounds = builder.build();
+                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 100);
+                            appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
+                            getDirections();
+                            appMap.animateCamera(cameraUpdate);
+                        }
+                    });
                 }
 
             }
-
 
             @Override
             public void onError(@NonNull Status status) {
@@ -173,101 +165,30 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void getDirections() {
-        if(checkPermission()){
+        if (checkPermission()) {
             fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
                 if (location != null) {
-                    StringBuilder sb;
-                    sb = new StringBuilder();
-                    sb.append("https://maps.googleapis.com/maps/api/directions/json?");
-                    sb.append("origin=" + location.getLatitude() + "," + location.getLongitude());
-                    sb.append("&destination=" + Objects.requireNonNull(endAddress.getLatLng()).latitude + "," + endAddress.getLatLng().longitude);
-                    sb.append("&key=" + "AIzaSyAMElDromNlk946AR6VTHSpkOvaV84Kk2Y");
-
-                    GetDirectionsData getDirectionsData = new GetDirectionsData();
-                    getDirectionsData.execute(sb.toString());
+                    UnitApp app = ((UnitApp) requireActivity().getApplication());
+                    String origin = location.getLatitude() + "," + location.getLongitude();
+                    String destination = Objects.requireNonNull(endAddress.getLatLng()).latitude + "," + endAddress.getLatLng().longitude;
+                    app.getMapsRepository().getDirections(origin, destination, KEY).observe(getViewLifecycleOwner(), r -> {
+                        if (r.getStatus() == com.example.unitapp.repository.Status.SUCCESS) {
+                            DirectionResponse directionResponse = r.getData();
+                            Route mainRoute = Objects.requireNonNull(directionResponse).getRoutes().get(0);
+                            Leg mainLeg = mainRoute.getLegs().get(0);
+                            List<Step> steps = mainLeg.getSteps();
+                            for (int i = 0; i < steps.size(); i++) {
+                                String polylinePoint = steps.get(i).getPolyline().getPoints();
+                                PolylineOptions polylineOptions = new PolylineOptions();
+                                polylineOptions.color(Color.BLUE);
+                                polylineOptions.width(10);
+                                polylineOptions.addAll(PolyUtil.decode(polylinePoint));
+                                appMap.addPolyline(polylineOptions);
+                            }
+                        }
+                    });
                 }
             });
-        }
-    }
-
-    private String requestDirection(String reqUrl) throws IOException {
-        String responseString = "";
-        InputStream inputStream = null;
-        HttpURLConnection httpURLConnection = null;
-        URL url = null;
-        try {
-            url = new URL(reqUrl);
-            httpURLConnection = (HttpURLConnection) url.openConnection();
-            httpURLConnection.connect();
-
-            //get response result
-            inputStream = httpURLConnection.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            StringBuffer stringBuffer = new StringBuffer();
-            String line = "";
-            while ((line = bufferedReader.readLine()) != null) {
-                stringBuffer.append(line);
-            }
-            responseString = stringBuffer.toString();
-            bufferedReader.close();
-            inputStreamReader.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-            httpURLConnection.disconnect();
-        }
-        return responseString;
-    }
-
-    private class GetDirectionsData extends AsyncTask<String, Void, String> {
-
-
-        @Override
-        protected String doInBackground(String... strings) {
-            String responseString = "";
-            try {
-                responseString = requestDirection(strings[0]);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return responseString;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            try {
-                JSONObject jsonObject = new JSONObject(s);
-                JSONArray jsonArray = jsonObject.getJSONArray("routes").getJSONObject(0).getJSONArray("legs")
-                        .getJSONObject(0).getJSONArray("steps");
-                int count = jsonArray.length();
-                String[] polyline_array = new String[count];
-
-                JSONObject jsonObject2;
-
-                for (int i = 0; i < count; i++) {
-                    jsonObject2 = jsonArray.getJSONObject(i);
-                    String polygone = jsonObject2.getJSONObject("polyline").getString("points");
-                    polyline_array[i] = polygone;
-                }
-
-                int count2 = polyline_array.length;
-
-                for (int i = 0; i < count2; i++) {
-                    PolylineOptions options2 = new PolylineOptions();
-                    options2.color(Color.BLUE);
-                    options2.width(10);
-                    options2.addAll(PolyUtil.decode(polyline_array[i]));
-                    appMap.addPolyline(options2);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
         }
     }
 
@@ -317,7 +238,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NotNull GoogleMap map) {
         appMap = map;
-        if(checkPermission()){
+        if (checkPermission()) {
             fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
                 if (location != null) {
                     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 17);
@@ -335,16 +256,19 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             updateMap();
         }
     };
-    private boolean checkPermission(){
+
+    private boolean checkPermission() {
         return ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
+
     private void startLocationUpdates() {
-        if(checkPermission()){
+        if (checkPermission()) {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
         }
     }
-    private void stopLocationUpdates(){
+
+    private void stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
