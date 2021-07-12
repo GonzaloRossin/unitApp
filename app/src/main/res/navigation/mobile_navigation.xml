@@ -26,7 +26,7 @@
             android:defaultValue="@null" />
         <argument
             android:name="driverDest"
-            app:argType="com.google.android.gms.maps.model.LatLng"
+            app:argType="com.google.android.libraries.places.api.model.Place"
             android:defaultValue="@null"
             app:nullable="true" />
     </fragment>
@@ -65,7 +65,7 @@
                 app:argType="com.example.unitapp.api.model.Driver"/>
             <argument
                 android:name="driverDest"
-                app:argType="com.google.android.gms.maps.model.LatLng" />
+                app:argType="com.google.android.libraries.places.api.model.Place" />
         </action>
         <argument
             android:name="location"

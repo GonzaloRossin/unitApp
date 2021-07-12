@@ -20,50 +20,49 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center|bottom"
-        android:text="@string/find_drivers"
-        android:textColor="#FFFFFFFF"
         android:layout_margin="16dp"
         android:backgroundTint="@color/primaryDarkColor"
         android:contentDescription="@string/request_drivers"
+        android:text="@string/find_drivers"
+        android:textColor="#FFFFFFFF"
         app:icon="@drawable/ic_baseline_drive_eta_24"
         app:iconTint="#FFFFFFFF" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/driver_info"
-        android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="#3F51B5"
-        android:layout_gravity="bottom|end"
-        app:tint="#FFFFFF"
+        android:layout_gravity="bottom|start"
         android:layout_margin="30dp"
+        android:backgroundTint="#3F51B5"
+        android:contentDescription="@string/driver_information"
         android:src="@drawable/ic_baseline_info_24"
-        android:contentDescription="@string/driver_information" />
+        android:textColor="#FFFFFF"
+        android:visibility="invisible"
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        app:tint="#FFFFFF" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/cancel_ride"
         android:layout_width="wrap_content"
-        android:visibility="invisible"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_marginBottom="0dp"
-        app:tint="#FFFFFF"
-        android:translationY="-16dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="35dp"
         android:backgroundTint="#FF0000"
-        android:layout_marginEnd="0dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
-        android:src="@drawable/ic_baseline_cancel_24"
-        app:layout_anchor="@id/driver_info"
-        app:layout_anchorGravity="top"
-        android:contentDescription="@string/cancel_driver" />
+        android:contentDescription="@string/cancel_driver"
+        android:text="@string/cancel_ride"
+        android:textColor="#FFFFFF"
+        android:visibility="invisible"
+
+        app:icon="@drawable/ic_baseline_cancel_24"
+        app:iconTint="#FFFFFF" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView2"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
