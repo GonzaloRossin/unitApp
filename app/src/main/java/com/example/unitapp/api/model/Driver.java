@@ -1,38 +1,41 @@
 package com.example.unitapp.api.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 
-public class Driver {
+public class Driver implements Parcelable {
 
     @SerializedName("name")
     @Expose
-    private String name;
+    String name;
     @SerializedName("latitude")
     @Expose
-    private double latitude;
+    double latitude;
     @SerializedName("longitude")
     @Expose
-    private double longitude;
+    double longitude;
     @SerializedName("capacity")
     @Expose
-    private int capacity;
+    int capacity;
     @SerializedName("plate")
     @Expose
-    private String plate;
+    String plate;
     @SerializedName("estimated_pickup")
     @Expose
-    private double estimatedPickup;
+    double estimatedPickup;
     @SerializedName("estimated_price")
     @Expose
-    private int estimatedPrice;
+    int estimatedPrice;
     @SerializedName("estimated_arrival")
     @Expose
-    private double estimatedArrival;
+    double estimatedArrival;
     @SerializedName("service_id")
     @Expose
-    private int serviceId;
+    int serviceId;
 
     /**
      * No args constructor for use in serialization
@@ -65,6 +68,30 @@ public class Driver {
         this.estimatedArrival = estimatedArrival;
         this.serviceId = serviceId;
     }
+
+    protected Driver(Parcel in) {
+        name = in.readString();
+        latitude = in.readDouble();
+        longitude = in.readDouble();
+        capacity = in.readInt();
+        plate = in.readString();
+        estimatedPickup = in.readDouble();
+        estimatedPrice = in.readInt();
+        estimatedArrival = in.readDouble();
+        serviceId = in.readInt();
+    }
+
+    public static final Creator<Driver> CREATOR = new Creator<Driver>() {
+        @Override
+        public Driver createFromParcel(Parcel in) {
+            return new Driver(in);
+        }
+
+        @Override
+        public Driver[] newArray(int size) {
+            return new Driver[size];
+        }
+    };
 
     public String getName() {
         return name;
@@ -138,4 +165,22 @@ public class Driver {
         this.serviceId = serviceId;
     }
 
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(name);
+        parcel.writeDouble(latitude);
+        parcel.writeDouble(longitude);
+        parcel.writeInt(capacity);
+        parcel.writeString(plate);
+        parcel.writeDouble(estimatedPickup);
+        parcel.writeInt(estimatedPrice);
+        parcel.writeDouble(estimatedArrival);
+        parcel.writeInt(serviceId);
+    }
 }

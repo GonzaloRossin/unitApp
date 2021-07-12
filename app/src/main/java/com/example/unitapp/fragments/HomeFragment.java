@@ -23,6 +23,8 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.example.unitapp.R;
 import com.example.unitapp.UnitApp;
@@ -60,6 +62,7 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.maps.android.PolyUtil;
 
 import org.jetbrains.annotations.NotNull;
@@ -90,14 +93,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private double lat, lng;
     private Handler handler;
     private LatLng startPosition, endPosition;
-    private Location currentLocation=null;
+    private Location currentLocation = null;
     private int index, next;
     private Polyline blackPolyline, greyPolyLine;
-    private boolean isDriverConfirmed = false;
-    public HomeFragment(boolean isDriverConfirmed, Driver driver) {
-        this.isDriverConfirmed = isDriverConfirmed;
-        this.driver = driver;
-    }
+
 
     public HomeFragment() {
 
@@ -112,10 +111,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             Places.initialize(this.requireContext(), KEY);
             placesClient = Places.createClient(this.requireContext());
         }
-        if(checkPermission()){
-            fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(),location -> {
-                if(location!=null){
-                    currentLocation=location;
+        if (checkPermission()) {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
+                if (location != null) {
+                    currentLocation = location;
                 }
             });
         }
@@ -131,16 +130,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         mMapView = view.findViewById(R.id.mapView2);
         initGoogleMap(savedInstanceState);
         confirmButton = view.findViewById(R.id.floating_action_button);
-    if(!isDriverConfirmed) {
+        Driver confirmedDriver = HomeFragmentArgs.fromBundle(getArguments()).getConfirmDriver();
+
         confirmButton.setOnClickListener(v -> {
             if (endAddress != null && checkPermission()) {
                 fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
                     if (location != null) {
-                        ChooseRideFragment chooseRideFragment = new ChooseRideFragment(location, endAddress, endAddress.getLatLng());
-                        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true);
-                        transaction.replace(R.id.mainNavFragment, chooseRideFragment);
-                        transaction.addToBackStack(null);
-                        transaction.commit();
+                        NavController navController = Navigation.findNavController(v);
+                        navController.navigate(HomeFragmentDirections.actionNavigationHomeToNavigationSelectRide(location, endAddress, endAddress.getLatLng()));
                     }
                 });
             } else {
@@ -173,7 +170,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                             LatLngBounds bounds = builder.build();
                             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 100);
                             appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
-                            getDirections(new LatLng(location.getLatitude(),location.getLongitude()),endAddress.getLatLng());
+                            getDirections(new LatLng(location.getLatitude(), location.getLongitude()), endAddress.getLatLng());
                             appMap.animateCamera(cameraUpdate);
                         }
                     });
@@ -186,28 +183,37 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
-    } else {
-        confirmButton.setVisibility(View.GONE);
-       
-    }
+
+        if (confirmedDriver != null) {
+            confirmButton.setVisibility(View.GONE);
+            FloatingActionButton driver_info = view.findViewById(R.id.driver_info);
+            FloatingActionButton cancel_ride = view.findViewById(R.id.cancel_ride);
+            cancel_ride.setOnClickListener(v -> {
+                confirmButton.setVisibility(View.VISIBLE);
+                cancel_ride.setVisibility(View.GONE);
+                driver_info.setVisibility(View.GONE);
+            });
+            driver_info.setVisibility(View.VISIBLE);
+            cancel_ride.setVisibility(View.VISIBLE);
+        }
 
         return view;
     }
 
     private void updateMap() {
         if (endAddress != null) {
-            if(checkPermission()){
-                fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(),location -> {
-                    if (location!=null && HaversineDistance.distance(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),new LatLng(location.getLatitude(),location.getLongitude()))>=30){
-                        currentLocation=location;
+            if (checkPermission()) {
+                fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
+                    if (location != null && HaversineDistance.distance(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), new LatLng(location.getLatitude(), location.getLongitude())) >= 30) {
+                        currentLocation = location;
                         appMap.clear();
                         appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
-                        if(HaversineDistance.distance(new LatLng(location.getLatitude(),location.getLongitude()), endAddress.getLatLng())<=30){
-                            Toast.makeText(this.requireContext(),"You are on destination",Toast.LENGTH_LONG).show();
+                        if (HaversineDistance.distance(new LatLng(location.getLatitude(), location.getLongitude()), endAddress.getLatLng()) <= 30) {
+                            Toast.makeText(this.requireContext(), "You are on destination", Toast.LENGTH_LONG).show();
                             stopLocationUpdates();
                             appMap.clear();
-                        }else{
-                            getDirections(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),endAddress.getLatLng());
+                        } else {
+                            getDirections(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), endAddress.getLatLng());
                         }
                     }
                 });
@@ -215,10 +221,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    public void getDirections(LatLng startLocation,LatLng endLocation) {
+    public void getDirections(LatLng startLocation, LatLng endLocation) {
         UnitApp app = ((UnitApp) requireActivity().getApplication());
-        String origin=startLocation.latitude+","+startLocation.longitude;
-        String destination=endLocation.latitude+","+endLocation.longitude;
+        String origin = startLocation.latitude + "," + startLocation.longitude;
+        String destination = endLocation.latitude + "," + endLocation.longitude;
         app.getMapsRepository().getDirections(origin, destination, KEY).observe(getViewLifecycleOwner(), r -> {
             if (r.getStatus() == com.example.unitapp.repository.Status.SUCCESS) {
                 DirectionResponse directionResponse = r.getData();

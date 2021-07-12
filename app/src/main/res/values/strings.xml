@@ -65,4 +65,6 @@
     <string name="current_location">Current Location</string>
     <string name="placeholder">Placeholder</string>
     <string name="request_driver">REQUEST DRIVER</string>
+    <string name="driver_information">Driver information</string>
+    <string name="cancel_driver">Cancel Drive</string>
 </resources>

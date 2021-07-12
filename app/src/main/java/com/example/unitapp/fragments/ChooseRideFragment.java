@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.example.unitapp.R;
 import com.example.unitapp.UnitApp;
@@ -45,10 +47,8 @@ public class ChooseRideFragment extends Fragment {
     Optional<Driver> uberDriver;
     Optional<Driver> cabifyDriver;
 
-    public ChooseRideFragment(Location location, Place dest, LatLng targetLocation) {
-        currentLocation = location;
-        destination = dest;
-        destCoordinates = targetLocation;
+    public ChooseRideFragment() {
+
     }
 
     @Override
@@ -89,6 +89,10 @@ public class ChooseRideFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_choose_ride, container, false);
+        ChooseRideFragmentArgs args = ChooseRideFragmentArgs.fromBundle(getArguments());
+        this.destination = args.getAddress();
+        this.currentLocation = args.getLocation();
+        this.destCoordinates = args.getLatlng();
         final MaterialCardView unit_x = view.findViewById(R.id.unit_x);
         final MaterialCardView unit_xl = view.findViewById(R.id.unit_xl);
         final MaterialCardView unit_flash = view.findViewById(R.id.unit_flash);
@@ -121,11 +125,9 @@ public class ChooseRideFragment extends Fragment {
 
         confirmEFAB.setOnClickListener(v -> {
             Driver selectedDriver = uberDriver.orElseGet(() -> cabifyDriver.get());
-            HomeFragment homeFragment = new HomeFragment(true, selectedDriver);
-            FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true);
-            transaction.replace(R.id.mainNavFragment, homeFragment);
-            transaction.addToBackStack(null);
-            transaction.commit();
+            NavController navController = Navigation.findNavController(v);
+
+            navController.navigate(ChooseRideFragmentDirections.actionNavigationSelectRideToNavigationHome(selectedDriver));
         });
 
         unit_x.setOnClickListener(v -> {

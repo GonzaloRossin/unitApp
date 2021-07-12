@@ -16,6 +16,14 @@
         <action
             android:id="@+id/action_navigation_home_to_navigation_profile"
             app:destination="@id/navigation_profile" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_select_ride"
+            app:destination="@id/navigation_select_ride" />
+        <argument
+            android:name="confirmDriver"
+            app:argType="com.example.unitapp.api.model.Driver"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
 
     <fragment
@@ -36,5 +44,29 @@
         <action
             android:id="@+id/action_navigation_profile_to_navigation_home"
             app:destination="@id/navigation_home" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_select_ride"
+        android:name="com.example.unitapp.fragments.ChooseRideFragment"
+        android:label="Choose Ride"
+        tools:layout="@layout/fragment_choose_ride"
+        >
+        <action
+            android:id="@+id/action_navigation_select_ride_to_navigation_home"
+            app:destination="@id/navigation_home" >
+            <argument
+                android:name="confirmDriver"
+                app:argType="com.example.unitapp.api.model.Driver"/>
+        </action>
+        <argument
+            android:name="location"
+            app:argType="android.location.Location" />
+        <argument
+            android:name="address"
+            app:argType="com.google.android.libraries.places.api.model.Place" />
+        <argument
+            android:name="latlng"
+            app:argType="com.google.android.gms.maps.model.LatLng" />
     </fragment>
 </navigation>
