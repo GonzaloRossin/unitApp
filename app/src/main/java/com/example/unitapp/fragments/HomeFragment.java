@@ -104,6 +104,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private Polyline blackPolyline, greyPolyLine;
     private MutableLiveData<Boolean> driverReached;
     LatLng startPosition, endPosition;
+    boolean lastTrip = true;
 
     public HomeFragment() {
 
@@ -142,7 +143,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         confirmedDriver = HomeFragmentArgs.fromBundle(getArguments()).getConfirmDriver();
 
         driverReached.observe(getViewLifecycleOwner(), r -> {
-            if (r) {
+            if (r && lastTrip) {
+                lastTrip = false;
                 driverDestination = HomeFragmentArgs.fromBundle(getArguments()).getDriverDest();
                 fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
                 fusedLocationClient.getLastLocation()
