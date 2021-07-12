@@ -4,6 +4,7 @@ import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,15 +18,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.unitapp.R;
 import com.example.unitapp.UnitApp;
 import com.example.unitapp.api.model.DirectionResponse;
-import com.example.unitapp.api.model.Leg;
 import com.example.unitapp.api.model.Route;
-import com.example.unitapp.api.model.Step;
 import com.example.unitapp.model.BeginJourneyEvent;
 import com.example.unitapp.model.CurrentJourneyEvent;
 import com.example.unitapp.model.EndJourneyEvent;
@@ -43,7 +41,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -86,28 +83,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private double lat, lng;
     private Handler handler;
     private LatLng startPosition, endPosition;
+    private Location currentLocation=null;
     private int index, next;
     private Polyline blackPolyline, greyPolyLine;
-
-
-    private void updateMap() {
-        /*if (endAddress != null) {
-            if(checkPermission()){
-                fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(),location -> {
-                    if (location!=null){
-                        appMap.clear();
-                        appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
-                        if(HaversineDistance.distance(new LatLng(location.getLatitude(),location.getLongitude()), endAddress.getLatLng())<=30){
-                            Toast.makeText(this.requireContext(),"You are on destination",Toast.LENGTH_LONG).show();
-                            stopLocationUpdates();
-                        }else{
-                            getDirections();
-                        }
-                    }
-                });
-            }
-        }*/
-    }
 
 
     @Override
@@ -115,12 +93,19 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this.requireContext());
         if (!Places.isInitialized()) {
-            Places.initialize(this.requireContext(), "AIzaSyAMElDromNlk946AR6VTHSpkOvaV84Kk2Y");
+            Places.initialize(this.requireContext(), KEY);
             placesClient = Places.createClient(this.requireContext());
         }
+        if(checkPermission()){
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(),location -> {
+                if(location!=null){
+                    currentLocation=location;
+                }
+            });
+        }
         locationRequest = LocationRequest.create();
-        locationRequest.setInterval(1000 * 90);
-        locationRequest.setFastestInterval(5000);
+        locationRequest.setInterval(5000);
+        locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -172,7 +157,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                             LatLngBounds bounds = builder.build();
                             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 100);
                             appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
-                            getDirections();
+                            getDirections(new LatLng(location.getLatitude(),location.getLongitude()),endAddress.getLatLng());
                             appMap.animateCamera(cameraUpdate);
                         }
                     });
@@ -186,33 +171,47 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-
         return view;
     }
 
-    public void getDirections() {
-        if (checkPermission()) {
-            fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
-                if (location != null) {
-                    UnitApp app = ((UnitApp) requireActivity().getApplication());
-                    String origin = location.getLatitude() + "," + location.getLongitude();
-                    String destination = Objects.requireNonNull(endAddress.getLatLng()).latitude + "," + endAddress.getLatLng().longitude;
-                    app.getMapsRepository().getDirections(origin, destination, KEY).observe(getViewLifecycleOwner(), r -> {
-                        if (r.getStatus() == com.example.unitapp.repository.Status.SUCCESS) {
-                            DirectionResponse directionResponse = r.getData();
-                            Route mainRoute = Objects.requireNonNull(directionResponse).getRoutes().get(0);
-                            String polylinePoint = mainRoute.getOverviewPolyline().getPoints();
-                            PolylineOptions polylineOptions = new PolylineOptions();
-                            polylineOptions.color(Color.BLUE);
-                            polylineOptions.width(10);
-                            polylineOptions.addAll(PolyUtil.decode(polylinePoint));
-                            appMap.addPolyline(polylineOptions);
-                            //drawPolyLineAndAnimateCar(PolyUtil.decode(polylinePoint), new LatLng(location.getLatitude(), location.getLongitude()));
+    private void updateMap() {
+        if (endAddress != null) {
+            if(checkPermission()){
+                fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(),location -> {
+                    if (location!=null && HaversineDistance.distance(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),new LatLng(location.getLatitude(),location.getLongitude()))>=30){
+                        currentLocation=location;
+                        appMap.clear();
+                        appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
+                        if(HaversineDistance.distance(new LatLng(location.getLatitude(),location.getLongitude()), endAddress.getLatLng())<=30){
+                            Toast.makeText(this.requireContext(),"You are on destination",Toast.LENGTH_LONG).show();
+                            stopLocationUpdates();
+                            appMap.clear();
+                        }else{
+                            getDirections(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),endAddress.getLatLng());
                         }
-                    });
-                }
-            });
+                    }
+                });
+            }
         }
+    }
+
+    public void getDirections(LatLng startLocation,LatLng endLocation) {
+        UnitApp app = ((UnitApp) requireActivity().getApplication());
+        String origin=startLocation.latitude+","+startLocation.longitude;
+        String destination=endLocation.latitude+","+endLocation.longitude;
+        app.getMapsRepository().getDirections(origin, destination, KEY).observe(getViewLifecycleOwner(), r -> {
+            if (r.getStatus() == com.example.unitapp.repository.Status.SUCCESS) {
+                DirectionResponse directionResponse = r.getData();
+                Route mainRoute = Objects.requireNonNull(directionResponse).getRoutes().get(0);
+                String polylinePoint = mainRoute.getOverviewPolyline().getPoints();
+                PolylineOptions polylineOptions = new PolylineOptions();
+                polylineOptions.color(Color.BLUE);
+                polylineOptions.width(10);
+                polylineOptions.addAll(PolyUtil.decode(polylinePoint));
+                appMap.addPolyline(polylineOptions);
+                //drawPolyLineAndAnimateCar(PolyUtil.decode(polylinePoint), startLocation);
+            }
+        });
     }
 
     private void drawPolyLineAndAnimateCar(List<LatLng> polyLineList, LatLng currentLocation) {
