@@ -27,6 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="140dp"
             android:fontFamily="sans-serif-medium"
+            android:gravity="center"
             android:text="@string/welcome_back"
             android:textColor="@color/primaryTextColor"
             android:textSize="34sp"

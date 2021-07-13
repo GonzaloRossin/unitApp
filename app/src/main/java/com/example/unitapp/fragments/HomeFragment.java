@@ -189,7 +189,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     }
                 });
             } else {
-                Toast.makeText(this.requireContext(), "Please enter a destination", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this.requireContext(), R.string.enter_destination, Toast.LENGTH_SHORT).show();
             }
         });
         // Initialize the AutocompleteSupportFragment.
@@ -199,7 +199,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS));
 
         autocompleteFragment.setCountries("AR");
-        autocompleteFragment.setHint("Where are you going?");
+        autocompleteFragment.setHint(getString(R.string.where_are_you_going));
 
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
@@ -224,7 +224,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
             @Override
             public void onError(@NonNull Status status) {
-                Log.i(TAG, "An error occurred: " + status);
+                Log.i(TAG, getString(R.string.error_ocurred) + status);
             }
         });
 

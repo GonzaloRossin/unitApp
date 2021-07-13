@@ -6,7 +6,6 @@
     <string name="name">Name</string> <!-- hay que setearlos cuando se crean-->
     <string name="last_name">Last Name</string>
     <string name="phone">Phone</string>
-    <string name="birthdate">Birthdate</string>
     <string name="profile_pic">Profile Image</string>
     <string name="account_info">Account info</string>
     <string name="payment">Add payment method</string>
@@ -89,4 +88,7 @@
     <string name="destination_reached">Destination Reached</string>
     <string name="please_rate_the_driver">Please rate the driver</string>
     <string name="done">Done</string>
+    <string name="enter_destination">Please enter a destination</string>
+    <string name="where_are_you_going">Where are you going?</string>
+    <string name="error_ocurred">\"An error occurred: \"</string>
 </resources>
