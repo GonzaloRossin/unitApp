@@ -105,6 +105,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private MutableLiveData<Boolean> driverReached;
     LatLng startPosition, endPosition;
     boolean lastTrip = true;
+    boolean tripStarted=false;
 
     public HomeFragment() {
 
@@ -151,7 +152,11 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                         .addOnSuccessListener(requireActivity(), location -> {
                             if (location != null) {
                                 LatLng start = new LatLng(location.getLatitude(), location.getLongitude());
-                                getDirections(start, driverDestination, true);
+                                appMap.clear();
+                                getDirections(start, driverDestination, false);
+                                appMap.addMarker(new MarkerOptions().position(driverDestination));
+                                appMap.addMarker(new MarkerOptions().position(start));
+                                tripStarted=true;
                             }
                         });
             }
@@ -242,9 +247,12 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                         currentLocation = location;
                         appMap.clear();
                         appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
+                        if(tripStarted){
+                            appMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),location.getLongitude())));
+                        }
                         if (HaversineDistance.distance(new LatLng(location.getLatitude(), location.getLongitude()), endAddress.getLatLng()) <= 30) {
                             Toast.makeText(this.requireContext(), "You are on destination", Toast.LENGTH_LONG).show();
-                            stopLocationUpdates();
+                            tripStarted=false;
                             appMap.clear();
                         } else {
                             getDirections(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), endAddress.getLatLng(), false);
