@@ -91,4 +91,5 @@
     <string name="enter_destination">Please enter a destination</string>
     <string name="where_are_you_going">Where are you going?</string>
     <string name="error_ocurred">\"An error occurred: \"</string>
+    <string name="log_out">Log out</string>
 </resources>
