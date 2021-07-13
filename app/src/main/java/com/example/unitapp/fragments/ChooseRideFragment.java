@@ -190,15 +190,18 @@ public class ChooseRideFragment extends Fragment {
                         requireActivity().findViewById(R.id.choose_ride_bar).setVisibility(View.GONE);
                         requireActivity().findViewById(R.id.choose_ride).setVisibility(View.VISIBLE);
                         drivers.set(Objects.requireNonNull(r.getData()).getDrivers());
-                        int maxCapacity = 0;
+
                         for (int i = 0; i < drivers.get().size(); i++) {
                             Driver driver = drivers.get().get(i);
-                            if (driver.getCapacity() > maxCapacity)
-                                maxCapacity = driver.getCapacity();
+                            if(driver.getCapacity() == 2) {
+                                unit_flash.setVisibility(View.VISIBLE);
+                            } else if(driver.getCapacity() == 3) {
+                                unit_x.setVisibility(View.VISIBLE);
+                            } else if(driver.getCapacity() == 6) {
+                                unit_xl.setVisibility(View.VISIBLE);
+                            }
+
                         }
-                        if (maxCapacity == 2) unit_flash.setVisibility(View.VISIBLE);
-                        if (maxCapacity == 3) unit_x.setVisibility(View.VISIBLE);
-                        if (maxCapacity == 6) unit_xl.setVisibility(View.VISIBLE);
 
                     } else {
                         defaultResourceHandler(r);
