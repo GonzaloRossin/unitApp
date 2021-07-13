@@ -86,4 +86,7 @@
     <string name="car_brand">Car Brand:</string>
     <string name="ford">Ford</string>
     <string name="focus">Focus</string>
+    <string name="destination_reached">Destination Reached</string>
+    <string name="please_rate_the_driver">Please rate the driver</string>
+    <string name="done">Done</string>
 </resources>

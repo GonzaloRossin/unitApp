@@ -316,6 +316,11 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                                 tripLocation=appMap.addMarker(markerOptions);
                             }
                             if (HaversineDistance.distance(new LatLng(location.getLatitude(), location.getLongitude()), endAddress.getLatLng()) <= 30) {
+                                Dialog finishTrip = new Dialog(requireActivity());
+                                finishTrip.setContentView(R.layout.destination_reached_dialog);
+                                finishTrip.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                                finishTrip.show();
+                                finishTrip.findViewById(R.id.done_button).setOnClickListener(c -> finishTrip.dismiss());
                                 confirmButton.setVisibility(View.VISIBLE);
                                 cancel_ride.setVisibility(View.GONE);
                                 driver_info.setVisibility(View.GONE);
