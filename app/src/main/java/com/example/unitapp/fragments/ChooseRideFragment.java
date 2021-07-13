@@ -58,8 +58,8 @@ public class ChooseRideFragment extends Fragment {
 
     private void setPriceTags(AtomicReference<List<Driver>> drivers,
                               int minCapacity,
-                              MaterialCardView uber_cardView,
-                              MaterialCardView cabify_cardView,
+                              MaterialCardView uberCardView,
+                              MaterialCardView cabifyCardView,
                               TextView uberPrice,
                               TextView cabifyPrice) {
         uberDriver = drivers.get()
@@ -71,18 +71,18 @@ public class ChooseRideFragment extends Fragment {
                 .filter(driver -> driver.getServiceId() == 2 && driver.getCapacity() == minCapacity)
                 .min(Comparator.comparing(Driver::getEstimatedPrice));
 
-        if(uberDriver.isPresent()) {
-            uber_cardView.setVisibility(View.VISIBLE);
+        if (uberDriver.isPresent()) {
+            uberCardView.setVisibility(View.VISIBLE);
             uberPrice.setText(String.valueOf(uberDriver.get().getEstimatedPrice()));
         } else {
-            uber_cardView.setVisibility(View.GONE);
+            uberCardView.setVisibility(View.GONE);
         }
 
-        if(cabifyDriver.isPresent()) {
-            cabify_cardView.setVisibility(View.VISIBLE);
+        if (cabifyDriver.isPresent()) {
+            cabifyCardView.setVisibility(View.VISIBLE);
             cabifyPrice.setText(String.valueOf(cabifyDriver.get().getEstimatedPrice()));
         } else {
-            cabify_cardView.setVisibility(View.GONE);
+            cabifyCardView.setVisibility(View.GONE);
         }
     }
 
@@ -96,31 +96,31 @@ public class ChooseRideFragment extends Fragment {
         final MaterialCardView unit_x = view.findViewById(R.id.unit_x);
         final MaterialCardView unit_xl = view.findViewById(R.id.unit_xl);
         final MaterialCardView unit_flash = view.findViewById(R.id.unit_flash);
-        final MaterialCardView uber_cardView = view.findViewById(R.id.uber_cardview);
-        final MaterialCardView cabify_cardView = view.findViewById(R.id.cabify_cardview);
+        final MaterialCardView uberCardView = view.findViewById(R.id.uber_cardview);
+        final MaterialCardView cabifyCardView = view.findViewById(R.id.cabify_cardview);
         final TextView confirm_ride = view.findViewById(R.id.confirm_ride);
         final TextView uberPrice = view.findViewById(R.id.option1_price);
         final TextView cabifyPrice = view.findViewById(R.id.option2_price);
         final MaterialButton confirmEFAB = view.findViewById(R.id.request_driver_btn);
         AtomicReference<List<Driver>> drivers = new AtomicReference<>();
-        uber_cardView.setOnClickListener(v -> {
-            uber_cardView.toggle();
-            if(uber_cardView.isChecked()) {
+        uberCardView.setOnClickListener(v -> {
+            uberCardView.toggle();
+            if (uberCardView.isChecked()) {
                 confirmEFAB.setVisibility(View.VISIBLE);
             } else {
                 confirmEFAB.setVisibility(View.INVISIBLE);
             }
-            if(cabify_cardView.isChecked()) cabify_cardView.toggle();
+            if (cabifyCardView.isChecked()) cabifyCardView.toggle();
         });
 
-        cabify_cardView.setOnClickListener(v -> {
-            cabify_cardView.toggle();
-            if(cabify_cardView.isChecked()) {
+        cabifyCardView.setOnClickListener(v -> {
+            cabifyCardView.toggle();
+            if (cabifyCardView.isChecked()) {
                 confirmEFAB.setVisibility(View.VISIBLE);
             } else {
                 confirmEFAB.setVisibility(View.INVISIBLE);
             }
-            if(uber_cardView.isChecked()) uber_cardView.toggle();
+            if (uberCardView.isChecked()) uberCardView.toggle();
         });
 
         confirmEFAB.setOnClickListener(v -> {
@@ -132,72 +132,73 @@ public class ChooseRideFragment extends Fragment {
 
         unit_x.setOnClickListener(v -> {
             unit_x.toggle();
-            if(unit_x.isChecked()) {
-                uber_cardView.setVisibility(View.VISIBLE);
-                cabify_cardView.setVisibility(View.VISIBLE);
+            if (unit_x.isChecked()) {
+                uberCardView.setVisibility(View.VISIBLE);
+                cabifyCardView.setVisibility(View.VISIBLE);
                 confirm_ride.setVisibility(View.VISIBLE);
-                setPriceTags(drivers, 3, uber_cardView, cabify_cardView, uberPrice, cabifyPrice);
+                setPriceTags(drivers, 3, uberCardView, cabifyCardView, uberPrice, cabifyPrice);
 
             } else {
-                uber_cardView.setVisibility(View.INVISIBLE);
-                cabify_cardView.setVisibility(View.INVISIBLE);
+                uberCardView.setVisibility(View.INVISIBLE);
+                cabifyCardView.setVisibility(View.INVISIBLE);
                 confirm_ride.setVisibility(View.INVISIBLE);
             }
-            if(unit_xl.isChecked()) unit_xl.toggle();
-            if(unit_flash.isChecked()) unit_flash.toggle();
+            if (unit_xl.isChecked()) unit_xl.toggle();
+            if (unit_flash.isChecked()) unit_flash.toggle();
         });
         unit_xl.setOnClickListener(v -> {
             unit_xl.toggle();
-            if(unit_xl.isChecked()) {
-                uber_cardView.setVisibility(View.VISIBLE);
-                cabify_cardView.setVisibility(View.VISIBLE);
+            if (unit_xl.isChecked()) {
+                uberCardView.setVisibility(View.VISIBLE);
+                cabifyCardView.setVisibility(View.VISIBLE);
                 confirm_ride.setVisibility(View.VISIBLE);
-                setPriceTags(drivers, 6, uber_cardView, cabify_cardView, uberPrice, cabifyPrice);
+                setPriceTags(drivers, 6, uberCardView, cabifyCardView, uberPrice, cabifyPrice);
             } else {
-                uber_cardView.setVisibility(View.INVISIBLE);
-                cabify_cardView.setVisibility(View.INVISIBLE);
+                uberCardView.setVisibility(View.INVISIBLE);
+                cabifyCardView.setVisibility(View.INVISIBLE);
                 confirm_ride.setVisibility(View.INVISIBLE);
             }
-            if(unit_x.isChecked()) unit_x.toggle();
-            if(unit_flash.isChecked()) unit_flash.toggle();
+            if (unit_x.isChecked()) unit_x.toggle();
+            if (unit_flash.isChecked()) unit_flash.toggle();
         });
         unit_flash.setOnClickListener(v -> {
             unit_flash.toggle();
-            if(unit_flash.isChecked()) {
-                uber_cardView.setVisibility(View.VISIBLE);
-                cabify_cardView.setVisibility(View.VISIBLE);
+            if (unit_flash.isChecked()) {
+                uberCardView.setVisibility(View.VISIBLE);
+                cabifyCardView.setVisibility(View.VISIBLE);
                 confirm_ride.setVisibility(View.VISIBLE);
-                setPriceTags(drivers, 2, uber_cardView, cabify_cardView, uberPrice, cabifyPrice);
+                setPriceTags(drivers, 2, uberCardView, cabifyCardView, uberPrice, cabifyPrice);
             } else {
-                uber_cardView.setVisibility(View.INVISIBLE);
-                cabify_cardView.setVisibility(View.INVISIBLE);
+                uberCardView.setVisibility(View.INVISIBLE);
+                cabifyCardView.setVisibility(View.INVISIBLE);
                 confirm_ride.setVisibility(View.INVISIBLE);
             }
-            if(unit_x.isChecked()) unit_x.toggle();
-            if(unit_xl.isChecked()) unit_xl.toggle();
+            if (unit_x.isChecked()) unit_x.toggle();
+            if (unit_xl.isChecked()) unit_xl.toggle();
         });
         TextView fromAddress = view.findViewById(R.id.fromAddress);
         TextView toAddress = view.findViewById(R.id.toAddress);
         toAddress.setText(destination.getAddress());
-        UnitApp app = ((UnitApp)requireActivity().getApplication());
+        UnitApp app = ((UnitApp) requireActivity().getApplication());
 
         app.getRideRepository().getAvailableDrivers(currentLocation.getLatitude(),
                 destCoordinates.latitude,
                 currentLocation.getLongitude(),
                 destCoordinates.longitude)
                 .observe(getViewLifecycleOwner(), r -> {
-                    if(r.getStatus() == Status.SUCCESS) {
+                    if (r.getStatus() == Status.SUCCESS) {
                         requireActivity().findViewById(R.id.choose_ride_bar).setVisibility(View.GONE);
                         requireActivity().findViewById(R.id.choose_ride).setVisibility(View.VISIBLE);
                         drivers.set(Objects.requireNonNull(r.getData()).getDrivers());
                         int maxCapacity = 0;
-                        for(int i = 0; i < drivers.get().size(); i++) {
+                        for (int i = 0; i < drivers.get().size(); i++) {
                             Driver driver = drivers.get().get(i);
-                            if(driver.getCapacity() > maxCapacity) maxCapacity = driver.getCapacity();
+                            if (driver.getCapacity() > maxCapacity)
+                                maxCapacity = driver.getCapacity();
                         }
-                        if(maxCapacity == 2) unit_flash.setVisibility(View.VISIBLE);
-                        if(maxCapacity == 3) unit_x.setVisibility(View.VISIBLE);
-                        if(maxCapacity == 6) unit_xl.setVisibility(View.VISIBLE);
+                        if (maxCapacity == 2) unit_flash.setVisibility(View.VISIBLE);
+                        if (maxCapacity == 3) unit_x.setVisibility(View.VISIBLE);
+                        if (maxCapacity == 6) unit_xl.setVisibility(View.VISIBLE);
 
                     } else {
                         defaultResourceHandler(r);

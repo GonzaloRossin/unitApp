@@ -3,8 +3,10 @@ package com.example.unitapp.fragments;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,11 +22,6 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentContainerView;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -33,7 +30,6 @@ import com.example.unitapp.R;
 import com.example.unitapp.UnitApp;
 import com.example.unitapp.api.model.DirectionResponse;
 import com.example.unitapp.api.model.Driver;
-import com.example.unitapp.api.model.Leg;
 import com.example.unitapp.api.model.Route;
 import com.example.unitapp.model.BeginJourneyEvent;
 import com.example.unitapp.model.CurrentJourneyEvent;
@@ -60,22 +56,28 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textview.MaterialTextView;
 import com.google.maps.android.PolyUtil;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Executor;
 
 import static com.example.unitapp.utils.Constants.MAPVIEW_BUNDLE_KEY;
 import static com.google.android.gms.maps.model.JointType.ROUND;
@@ -109,6 +111,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     Runnable animationTask;
     private MarkerOptions markerOptions;
     private Marker tripLocation;
+    Dialog infoDialog, cancelDialog;
 
     public HomeFragment() {
 
@@ -225,16 +228,47 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             confirmButton.setVisibility(View.GONE);
             FloatingActionButton driver_info = view.findViewById(R.id.driver_info);
             cancel_ride.setOnClickListener(v -> {
-                confirmButton.setVisibility(View.VISIBLE);
-                cancel_ride.setVisibility(View.GONE);
-                driver_info.setVisibility(View.GONE);
-                lastTrip = true;
-                confirmedDriver = null;
-                handler.removeCallbacks(animationTask);
-                endAddress = null;
-                driverReached.setValue(false);
-                polylineAnimator.end();
-                appMap.clear();
+                cancelDialog = new Dialog(requireActivity());
+                cancelDialog.setContentView(R.layout.cancel_ride_dialog);
+                cancelDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                cancelDialog.show();
+                MaterialButton acceptButton = cancelDialog.findViewById(R.id.accept_btn);
+                MaterialButton cancelButton = cancelDialog.findViewById(R.id.cancel_btn);
+                acceptButton.setOnClickListener(acceptView -> {
+                    confirmButton.setVisibility(View.VISIBLE);
+                    cancel_ride.setVisibility(View.GONE);
+                    driver_info.setVisibility(View.GONE);
+                    lastTrip = true;
+                    confirmedDriver = null;
+                    handler.removeCallbacks(animationTask);
+                    endAddress = null;
+                    driverReached.setValue(false);
+                    polylineAnimator.end();
+                    appMap.clear();
+                    cancelDialog.dismiss();
+                });
+
+                cancelButton.setOnClickListener(cancelView -> cancelDialog.dismiss());
+
+            });
+
+            driver_info.setOnClickListener(v -> {
+                infoDialog = new Dialog(requireActivity());
+                infoDialog.setContentView(R.layout.driver_info_dialog);
+                infoDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                infoDialog.show();
+                MaterialTextView driver_pickup_time = infoDialog.findViewById(R.id.pickup_time_placeholder);
+                MaterialTextView driver_arrival_time = infoDialog.findViewById(R.id.arrival_time_placeholder);
+                LocalDateTime dateTime = LocalDateTime.now().plus(Duration.of((int)confirmedDriver.getEstimatedArrival(), ChronoUnit.MINUTES));
+                String arrival_time = dateTime.getHour() + ":" + dateTime.getMinute();
+                dateTime = LocalDateTime.now().plus(Duration.of((int)confirmedDriver.getEstimatedPickup() / 10, ChronoUnit.MINUTES));
+                String pickup_time = dateTime.getHour() + ":" + dateTime.getMinute();
+                driver_pickup_time.setText(pickup_time);
+                driver_arrival_time.setText(arrival_time);
+                MaterialTextView driver_name = infoDialog.findViewById(R.id.driver_name_placeholder);
+                MaterialTextView driver_plate = infoDialog.findViewById(R.id.driver_plate_placeholder);
+                driver_name.setText(confirmedDriver.getName());
+                driver_plate.setText(confirmedDriver.getPlate());
             });
             driver_info.setVisibility(View.VISIBLE);
             cancel_ride.setVisibility(View.VISIBLE);
@@ -402,9 +436,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     marker.setPosition(newPos);
                     marker.setAnchor(0.5f, 0.5f);
                     marker.setRotation(getBearing(startPosition, newPos));
-                    /*appMap.animateCamera(CameraUpdateFactory.newCameraPosition
-                            (new CameraPosition.Builder().target(newPos)
-                                    .zoom(15.5f).build()));*/
                 });
                 valueAnimator.start();
                 if (index != polyLineList.size() - 1) {

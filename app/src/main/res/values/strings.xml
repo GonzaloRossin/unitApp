@@ -75,4 +75,15 @@
     <string name="on_your_first_ride">on your first ride!</string>
     <string name="phone_number">Phone number</string>
     <string name="cancel_ride">Cancel ride</string>
+    <string name="driver_name">Driver Name:</string>
+    <string name="driver_plate">Driver Plate:</string>
+    <string name="are_you_sure_you_want_to_cancel_this_ride">Are you sure you want to cancel this ride?</string>
+    <string name="pickup_time">Pickup Time:</string>
+    <string name="arrival_time">Arrival Time:</string>
+    <string name="cancel">Cancel</string>
+    <string name="accept">Accept</string>
+    <string name="car_model">Car Model</string>
+    <string name="car_brand">Car Brand:</string>
+    <string name="ford">Ford</string>
+    <string name="focus">Focus</string>
 </resources>
