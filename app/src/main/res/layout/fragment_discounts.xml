@@ -12,13 +12,14 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="76dp"
+        android:gravity="center"
         android:text="@string/best_offers"
         android:textColor="@color/primaryTextColor"
         android:textSize="34sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.533"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -45,7 +46,7 @@
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/disc1"
-                    android:layout_width="300sp"
+                    android:layout_width="300dp"
                     android:layout_height="90dp"
                     android:clickable="true"
                     android:contextClickable="true"
