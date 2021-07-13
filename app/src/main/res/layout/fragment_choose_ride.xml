@@ -69,6 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginTop="40dp"
             android:indeterminate="true"
             app:indicatorColor="#FFFFFFFF" />
 
@@ -420,14 +421,13 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/request_driver_btn"
-            android:visibility="invisible"
             android:layout_width="wrap_content"
-            android:textColor="#FF000000"
             android:layout_height="wrap_content"
-            android:text="@string/request_driver"
-            android:backgroundTint="@color/quantum_white_100"
             android:layout_gravity="center"
-            />
+            android:backgroundTint="@color/quantum_white_100"
+            android:text="@string/request_driver"
+            android:textColor="#FF000000"
+            android:visibility="invisible" />
 
     </LinearLayout>
 
