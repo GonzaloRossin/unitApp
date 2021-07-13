@@ -105,13 +105,17 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     boolean lastTrip = true;
     boolean tripStarted=false;
     ValueAnimator polylineAnimator;
+    private final int PADDING=90;
     Runnable animationTask;
+    private MarkerOptions markerOptions;
+    private Marker tripLocation;
 
     public HomeFragment() {
 
     }
 
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,10 +158,16 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                             if (location != null) {
                                 LatLng start = new LatLng(location.getLatitude(), location.getLongitude());
                                 appMap.clear();
-                                appMap.addMarker(new MarkerOptions().position(driverDestination));
-                                appMap.addMarker(new MarkerOptions().position(start));
+                                appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
+                                markerOptions=new MarkerOptions();
+                                markerOptions.position(start).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car));
+                                markerOptions.rotation(location.getBearing()).anchor((float)0.5,(float)0.5);
+                                tripLocation=appMap.addMarker(markerOptions);
+                                getDirections(start, endAddress.getLatLng(), false);
+                                CameraUpdate cameraUpdate=modifyMapZoom(location,endAddress);
+                                appMap.animateCamera(cameraUpdate);
                                 tripStarted=true;
-                                getDirections(start, Objects.requireNonNull(endAddress.getLatLng()), false);
+                                appMap.setMyLocationEnabled(false);
                             }
                         });
             }
@@ -195,11 +205,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 if (checkPermission()) {
                     fusedLocationClient.getLastLocation().addOnSuccessListener(HomeFragment.super.requireActivity(), location -> {
                         if (location != null) {
-                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                            builder.include(Objects.requireNonNull(endAddress.getLatLng()));
-                            builder.include(new LatLng(location.getLatitude(), location.getLongitude()));
-                            LatLngBounds bounds = builder.build();
-                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 100);
+                            CameraUpdate cameraUpdate=modifyMapZoom(location,endAddress);
                             appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
                             getDirections(new LatLng(location.getLatitude(), location.getLongitude()), endAddress.getLatLng(), false);
                             appMap.animateCamera(cameraUpdate);
@@ -245,24 +251,41 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
         return view;
     }
-
+    private CameraUpdate modifyMapZoom(Location startlocation, Place destination){
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        builder.include(Objects.requireNonNull(destination.getLatLng()));
+        builder.include(new LatLng(startlocation.getLatitude(), startlocation.getLongitude()));
+        LatLngBounds bounds = builder.build();
+        return CameraUpdateFactory.newLatLngBounds(bounds, PADDING);
+    }
+    @SuppressLint("MissingPermission")
     private void updateMap() {
         if (endAddress != null) {
             if (checkPermission()) {
                 fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
-                    if (location != null && HaversineDistance.distance(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), new LatLng(location.getLatitude(), location.getLongitude())) >= 30) {
-                        currentLocation = location;
-                        appMap.clear();
-                        appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
+                    if (location != null){
                         if(tripStarted){
-                            appMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),location.getLongitude())));
+                            tripLocation.setPosition(new LatLng(location.getLatitude(),location.getLongitude()));
+                            markerOptions.rotation(location.getBearing()).anchor((float)0.5,(float)0.5);
                         }
-                        if (HaversineDistance.distance(new LatLng(location.getLatitude(), location.getLongitude()), endAddress.getLatLng()) <= 30) {
-                            Toast.makeText(this.requireContext(), "You are on destination", Toast.LENGTH_LONG).show();
-                            tripStarted=false;
+                        if(HaversineDistance.distance(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), new LatLng(location.getLatitude(), location.getLongitude())) >= 30) {
+                            currentLocation = location;
                             appMap.clear();
-                        } else {
-                            getDirections(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), endAddress.getLatLng(), false);
+                            appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
+                            if(tripStarted){
+                                markerOptions.position(new LatLng(location.getLatitude(),location.getLongitude())).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car));
+                                markerOptions.rotation(location.getBearing()).anchor((float)0.5,(float)0.5);
+                                tripLocation=appMap.addMarker(markerOptions);
+                            }
+                            if (HaversineDistance.distance(new LatLng(location.getLatitude(), location.getLongitude()), endAddress.getLatLng()) <= 30) {
+                                Toast.makeText(this.requireContext(), "You are on destination", Toast.LENGTH_LONG).show();
+                                tripStarted=false;
+                                appMap.clear();
+                                if(checkPermission())
+                                    appMap.setMyLocationEnabled(true);
+                            } else {
+                                getDirections(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), endAddress.getLatLng(), false);
+                            }
                         }
                     }
                 });
@@ -297,7 +320,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             builder.include(latLng);
         }
         LatLngBounds bounds = builder.build();
-        CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 2);
+        CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, PADDING);
         appMap.animateCamera(mCameraUpdate);
 
         PolylineOptions polylineOptions = new PolylineOptions();
@@ -379,9 +402,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     marker.setPosition(newPos);
                     marker.setAnchor(0.5f, 0.5f);
                     marker.setRotation(getBearing(startPosition, newPos));
-                    appMap.animateCamera(CameraUpdateFactory.newCameraPosition
+                    /*appMap.animateCamera(CameraUpdateFactory.newCameraPosition
                             (new CameraPosition.Builder().target(newPos)
-                                    .zoom(15.5f).build()));
+                                    .zoom(15.5f).build()));*/
                 });
                 valueAnimator.start();
                 if (index != polyLineList.size() - 1) {
@@ -457,6 +480,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         stopLocationUpdates();
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(@NotNull GoogleMap map) {
         appMap = map;
@@ -484,6 +508,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this.requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
+    @SuppressLint("MissingPermission")
     private void startLocationUpdates() {
         if (checkPermission()) {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
