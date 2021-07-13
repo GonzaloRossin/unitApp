@@ -127,7 +127,7 @@ public class ChooseRideFragment extends Fragment {
             Driver selectedDriver = uberDriver.orElseGet(() -> cabifyDriver.get());
             NavController navController = Navigation.findNavController(v);
 
-            navController.navigate(ChooseRideFragmentDirections.actionNavigationSelectRideToNavigationHome(selectedDriver, destCoordinates));
+            navController.navigate(ChooseRideFragmentDirections.actionNavigationSelectRideToNavigationHome(selectedDriver, destination));
         });
 
         unit_x.setOnClickListener(v -> {

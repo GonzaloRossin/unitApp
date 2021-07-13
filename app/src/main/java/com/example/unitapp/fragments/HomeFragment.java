@@ -93,12 +93,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     Driver confirmedDriver;
     PlacesClient placesClient;
     LocationRequest locationRequest;
-    private List<LatLng> polyLineList;
     private Marker marker;
     private float v;
     private double lat, lng;
     private Handler handler;
-    private LatLng driverDestination;
     private Location currentLocation = null;
     private int index, next;
     private Polyline blackPolyline, greyPolyLine;
@@ -106,6 +104,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     LatLng startPosition, endPosition;
     boolean lastTrip = true;
     boolean tripStarted=false;
+    ValueAnimator polylineAnimator;
+    Runnable animationTask;
 
     public HomeFragment() {
 
@@ -142,21 +142,22 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         initGoogleMap(savedInstanceState);
         confirmButton = view.findViewById(R.id.floating_action_button);
         confirmedDriver = HomeFragmentArgs.fromBundle(getArguments()).getConfirmDriver();
-
+        ExtendedFloatingActionButton cancel_ride = view.findViewById(R.id.cancel_ride);
         driverReached.observe(getViewLifecycleOwner(), r -> {
             if (r && lastTrip) {
                 lastTrip = false;
-                driverDestination = HomeFragmentArgs.fromBundle(getArguments()).getDriverDest();
+                cancel_ride.setVisibility(View.GONE);
+                endAddress = HomeFragmentArgs.fromBundle(getArguments()).getDriverDest();
                 fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
                 fusedLocationClient.getLastLocation()
                         .addOnSuccessListener(requireActivity(), location -> {
                             if (location != null) {
                                 LatLng start = new LatLng(location.getLatitude(), location.getLongitude());
                                 appMap.clear();
-                                getDirections(start, driverDestination, false);
                                 appMap.addMarker(new MarkerOptions().position(driverDestination));
                                 appMap.addMarker(new MarkerOptions().position(start));
                                 tripStarted=true;
+                                getDirections(start, Objects.requireNonNull(endAddress.getLatLng()), false);
                             }
                         });
             }
@@ -217,11 +218,17 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         if (confirmedDriver != null) {
             confirmButton.setVisibility(View.GONE);
             FloatingActionButton driver_info = view.findViewById(R.id.driver_info);
-            FloatingActionButton cancel_ride = view.findViewById(R.id.cancel_ride);
             cancel_ride.setOnClickListener(v -> {
                 confirmButton.setVisibility(View.VISIBLE);
                 cancel_ride.setVisibility(View.GONE);
                 driver_info.setVisibility(View.GONE);
+                lastTrip = true;
+                confirmedDriver = null;
+                handler.removeCallbacks(animationTask);
+                endAddress = null;
+                driverReached.setValue(false);
+                polylineAnimator.end();
+                appMap.clear();
             });
             driver_info.setVisibility(View.VISIBLE);
             cancel_ride.setVisibility(View.VISIBLE);
@@ -311,7 +318,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         blackPolyline = appMap.addPolyline(blackPolylineOptions);
 
 
-        ValueAnimator polylineAnimator = ValueAnimator.ofInt(0, 100);
+        polylineAnimator = ValueAnimator.ofInt(0, 100);
         polylineAnimator.setDuration(2000);
         polylineAnimator.setInterpolator(new LinearInterpolator());
         polylineAnimator.addUpdateListener(valueAnimator -> {
@@ -329,8 +336,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         handler = new Handler();
         index = -1;
         next = 1;
-
-        handler.postDelayed(new Runnable() {
+        animationTask = new Runnable() {
             @Override
             protected void finalize() throws Throwable {
                 super.finalize();
@@ -387,7 +393,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 }
 
             }
-        }, 3000);
+        };
+        handler.postDelayed(animationTask, 3000);
 
     }
 

@@ -56,7 +56,7 @@
     <string name="transport_option2_size">6</string>
     <string name="transport_option3">Unit Flash</string>
     <string name="transport_option3_size">2</string>
-    <string name="username">E-Mail</string>
+    <string name="username">E-mail</string>
     <string name="password">Password</string>
     <string name="register">register</string>
     <string name="request_drivers">Request drivers</string>
@@ -67,4 +67,12 @@
     <string name="request_driver">REQUEST DRIVER</string>
     <string name="driver_information">Driver information</string>
     <string name="cancel_driver">Cancel Drive</string>
+    <string name="only_for_today">only for today!</string>
+    <string name="get_100">Get $100</string>
+    <string name="get_300">Get $300</string>
+    <string name="on_your_10th_ride">on your 10th ride!</string>
+    <string name="get_200">Get $200</string>
+    <string name="on_your_first_ride">on your first ride!</string>
+    <string name="phone_number">Phone number</string>
+    <string name="cancel_ride">Cancel ride</string>
 </resources>
