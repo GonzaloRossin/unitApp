@@ -111,6 +111,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     ValueAnimator polylineAnimator;
     private final int PADDING=90;
     Runnable animationTask;
+    ExtendedFloatingActionButton cancel_ride;
+    FloatingActionButton driver_info;
     private MarkerOptions markerOptions;
     private Marker tripLocation;
     Dialog infoDialog, cancelDialog;
@@ -151,7 +153,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         initGoogleMap(savedInstanceState);
         confirmButton = view.findViewById(R.id.floating_action_button);
         confirmedDriver = HomeFragmentArgs.fromBundle(getArguments()).getConfirmDriver();
-        ExtendedFloatingActionButton cancel_ride = view.findViewById(R.id.cancel_ride);
+        cancel_ride = view.findViewById(R.id.cancel_ride);
         driverReached.observe(getViewLifecycleOwner(), r -> {
             if (r && lastTrip) {
                 lastTrip = false;
@@ -228,7 +230,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
         if (confirmedDriver != null) {
             confirmButton.setVisibility(View.GONE);
-            FloatingActionButton driver_info = view.findViewById(R.id.driver_info);
+            driver_info = view.findViewById(R.id.driver_info);
             cancel_ride.setOnClickListener(v -> {
                 cancelDialog = new Dialog(requireActivity());
                 cancelDialog.setContentView(R.layout.cancel_ride_dialog);
@@ -314,8 +316,15 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                                 tripLocation=appMap.addMarker(markerOptions);
                             }
                             if (HaversineDistance.distance(new LatLng(location.getLatitude(), location.getLongitude()), endAddress.getLatLng()) <= 30) {
-                                Toast.makeText(this.requireContext(), "You are on destination", Toast.LENGTH_LONG).show();
-                                tripStarted=false;
+                                confirmButton.setVisibility(View.VISIBLE);
+                                cancel_ride.setVisibility(View.GONE);
+                                driver_info.setVisibility(View.GONE);
+                                lastTrip = true;
+                                confirmedDriver = null;
+                                handler.removeCallbacks(animationTask);
+                                endAddress = null;
+                                driverReached.setValue(false);
+                                polylineAnimator.end();
                                 appMap.clear();
                                 if(checkPermission())
                                     appMap.setMyLocationEnabled(true);
