@@ -8,6 +8,7 @@ import com.example.unitapp.api.ApiClient;
 import com.example.unitapp.api.ApiResponse;
 import com.example.unitapp.api.model.LoginCredentials;
 import com.example.unitapp.api.model.LoginResponse;
+import com.example.unitapp.api.model.ProfileResponse;
 import com.example.unitapp.api.model.RegisterCredentials;
 import com.example.unitapp.api.service.ApiUserService;
 
@@ -37,6 +38,17 @@ public class UserRepository {
             @Override
             protected LiveData<ApiResponse<LoginResponse>> createCall() {
                 return apiService.login(loginCredentials);
+            }
+        }.asLiveData();
+    }
+
+    public LiveData<Resource<ProfileResponse>> getCurrentUser() {
+        return new NetworkBoundResource<ProfileResponse, ProfileResponse>() {
+            @NonNull
+            @NotNull
+            @Override
+            protected LiveData<ApiResponse<ProfileResponse>> createCall() {
+                return apiService.getCurrentUser();
             }
         }.asLiveData();
     }

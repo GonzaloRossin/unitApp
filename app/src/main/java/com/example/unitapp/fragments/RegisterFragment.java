@@ -27,6 +27,7 @@ import com.example.unitapp.databinding.FragmentRegisterBinding;
 import com.example.unitapp.repository.Resource;
 import com.example.unitapp.repository.Status;
 import com.example.unitapp.viewModel.UserViewModel;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -36,6 +37,7 @@ public class RegisterFragment extends Fragment {
     private EditText username;
     private EditText password;
     private EditText phone;
+    private CircularProgressIndicator loading;
     private UserViewModel viewModel;
 
     @Nullable
@@ -46,7 +48,7 @@ public class RegisterFragment extends Fragment {
         username = binding.username;
         password = binding.password;
         phone = binding.phone;
-
+        loading = binding.registerProgressBar;
         View view = binding.getRoot();
         Button registerBtn = view.findViewById(R.id.signin);
         registerBtn.setOnClickListener(this::tryRegister);
@@ -67,6 +69,10 @@ public class RegisterFragment extends Fragment {
         RegisterCredentials credentials = new RegisterCredentials(username.getText().toString(), password.getText().toString(), lPhone);
         app.getUserRepository().register(credentials).observe(getViewLifecycleOwner(), r -> {
             if(r.getStatus() == Status.SUCCESS) {
+                loading.setVisibility(View.GONE);
+                app.getPreferences().setAuthToken(r.getData().getToken());
+                app.getPreferences().setUberToken(r.getData().getUberId());
+                app.getPreferences().setCabifyToken(r.getData().getCabifyId());
                 Intent intent = new Intent(getActivity(), MainActivity.class);
                 startActivity(intent);
                 requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -80,8 +86,10 @@ public class RegisterFragment extends Fragment {
     private void defaultResourceHandler(Resource<?> resource) {
         switch (resource.getStatus()) {
             case LOADING:
+                loading.setVisibility(View.VISIBLE);
                 break;
             case ERROR:
+                loading.setVisibility(View.GONE);
                 Error error = resource.getError();
                 Toast.makeText(requireContext(), Objects.requireNonNull(error).getCode() + ": " + error.getDescription(), Toast.LENGTH_SHORT).show();
                 break;

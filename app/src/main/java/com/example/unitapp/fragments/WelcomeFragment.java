@@ -34,25 +34,26 @@ public class WelcomeFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_welcome, container, false);
 
         UnitAppPreferences app = ((UnitApp)requireActivity().getApplication()).getPreferences();
-        if(app.getCabify() >= 0 && app.getUberToken() >= 0) {
+        app.setAuthToken(null);
+        /*if(app.getCabify() >= 0 && app.getUberToken() >= 0) {
             Intent intent = new Intent(getActivity(), MainActivity.class);
             startActivity(intent);
             requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             requireActivity().finish();
-        } else {
-            Button signinBtn = rootView.findViewById(R.id.signin);
-            Button registerBtn = rootView.findViewById(R.id.register);
+        }*/
+        Button signinBtn = rootView.findViewById(R.id.signin);
+        Button registerBtn = rootView.findViewById(R.id.register);
 
-            signinBtn.setOnClickListener((v)-> {
-                NavController navController = Navigation.findNavController(v);
-                navController.navigate(WelcomeFragmentDirections.actionWelcomeFragmentToLoginFragment());
-            });
+        signinBtn.setOnClickListener((v)-> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(WelcomeFragmentDirections.actionWelcomeFragmentToLoginFragment());
+        });
 
-            registerBtn.setOnClickListener((v -> {
-                NavController navController = Navigation.findNavController(v);
-                navController.navigate(WelcomeFragmentDirections.actionWelcomeFragmentToRegisterFragment());
-            }));
-        }
+        registerBtn.setOnClickListener((v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(WelcomeFragmentDirections.actionWelcomeFragmentToRegisterFragment());
+        }));
+
 
         return rootView;
     }
