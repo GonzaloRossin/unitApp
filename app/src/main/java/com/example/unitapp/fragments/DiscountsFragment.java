@@ -36,7 +36,7 @@ public class DiscountsFragment extends Fragment {
     }
 
     private void toast(View view) {
-        Toast.makeText(requireContext(),"discount applied",Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(),"Descuento aplicado!",Toast.LENGTH_SHORT).show();
     }
 
 
