@@ -33,18 +33,13 @@ public class WelcomeFragment extends Fragment {
     public View onCreateView(@NonNull @NotNull LayoutInflater inflater, @Nullable @org.jetbrains.annotations.Nullable ViewGroup container, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_welcome, container, false);
 
-        UnitAppPreferences app = ((UnitApp)requireActivity().getApplication()).getPreferences();
+        UnitAppPreferences app = ((UnitApp) requireActivity().getApplication()).getPreferences();
         app.setAuthToken(null);
-        /*if(app.getCabify() >= 0 && app.getUberToken() >= 0) {
-            Intent intent = new Intent(getActivity(), MainActivity.class);
-            startActivity(intent);
-            requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            requireActivity().finish();
-        }*/
+
         Button signinBtn = rootView.findViewById(R.id.signin);
         Button registerBtn = rootView.findViewById(R.id.register);
 
-        signinBtn.setOnClickListener((v)-> {
+        signinBtn.setOnClickListener((v) -> {
             NavController navController = Navigation.findNavController(v);
             navController.navigate(WelcomeFragmentDirections.actionWelcomeFragmentToLoginFragment());
         });

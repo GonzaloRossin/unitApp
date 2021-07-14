@@ -28,35 +28,123 @@
         app:icon="@drawable/ic_baseline_drive_eta_24"
         app:iconTint="#FFFFFFFF" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/driver_info"
-        android:layout_width="wrap_content"
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/driver_info_card"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:layout_margin="30dp"
-        android:backgroundTint="#3F51B5"
-        android:contentDescription="@string/driver_information"
-        android:src="@drawable/ic_baseline_info_24"
-        android:textColor="#FFFFFF"
+        android:layout_gravity="bottom"
+        android:layout_margin="10dp"
+        android:elevation="16dp"
         android:visibility="invisible"
+        app:cardCornerRadius="3dp">
 
-        app:tint="#FFFFFF" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/cancel_ride"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="15dp"
-        android:layout_marginBottom="35dp"
-        android:backgroundTint="#FF0000"
-        android:contentDescription="@string/cancel_driver"
-        android:text="@string/cancel_ride"
-        android:textColor="#FFFFFF"
-        android:visibility="invisible"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/car_placeholder_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:adjustViewBounds="true"
+                android:maxHeight="70dp"
+                android:scaleType="fitStart"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/placeholder_car" />
 
-        app:icon="@drawable/ic_baseline_cancel_24"
-        app:iconTint="#FFFFFF" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/model_brand_placeholder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/muli"
+                android:text="@string/model_placeholder"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/plate_placeholder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/muli"
+                android:text="@string/plate_placeholder"
+                android:textColor="#000000"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/model_brand_placeholder" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/driver_name_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/muli"
+                android:paddingBottom="10dp"
+                android:text="@string/john_doe"
+                android:textColor="#000000"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toTopOf="@+id/cancel_ride_btn"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/materialTextView9" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/materialTextView9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:fontFamily="@font/muli_bold"
+                android:text="@string/star_placeholder"
+                android:textColor="#000000"
+                android:textSize="15sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/plate_placeholder" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/time_estimate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:fontFamily="@font/muli"
+                android:text="@string/pickup_time"
+                android:textColor="#000000"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/time_estimate_value" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/time_estimate_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:fontFamily="@font/muli"
+                android:text="@string/placeholder_time_value"
+                android:textColor="#000000"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <Button
+                android:id="@+id/cancel_ride_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#00FFFFFF"
+                android:text="@string/cancel_ride"
+                android:textColor="#F44336"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView2"

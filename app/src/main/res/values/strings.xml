@@ -77,8 +77,8 @@
     <string name="driver_name">Driver Name:</string>
     <string name="driver_plate">Driver Plate:</string>
     <string name="are_you_sure_you_want_to_cancel_this_ride">Are you sure you want to cancel this ride?</string>
-    <string name="pickup_time">Pickup Time:</string>
-    <string name="arrival_time">Arrival Time:</string>
+    <string name="pickup_time">Pickup Time:&#160;</string>
+    <string name="arrival_time">Arrival Time:&#160;</string>
     <string name="cancel">Cancel</string>
     <string name="accept">Accept</string>
     <string name="car_model">Car Model</string>
@@ -93,4 +93,10 @@
     <string name="error_ocurred">\"An error occurred: \"</string>
     <string name="log_out">Log out</string>
     <string name="link">Link with</string>
+    <string name="john_doe">John Doe</string>
+    <string name="separator">&#160;•&#160;</string>
+    <string name="star_placeholder">5.0★</string>
+    <string name="model_placeholder">Chevrolet Tahoe</string>
+    <string name="plate_placeholder">4BCF82</string>
+    <string name="placeholder_time_value">12:24</string>
 </resources>

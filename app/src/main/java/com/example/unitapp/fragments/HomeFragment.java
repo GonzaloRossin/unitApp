@@ -33,6 +33,7 @@ import com.example.unitapp.UnitApp;
 import com.example.unitapp.api.model.DirectionResponse;
 import com.example.unitapp.api.model.Driver;
 import com.example.unitapp.api.model.Route;
+import com.example.unitapp.databinding.FragmentHomeBinding;
 import com.example.unitapp.model.BeginJourneyEvent;
 import com.example.unitapp.model.CurrentJourneyEvent;
 import com.example.unitapp.model.EndJourneyEvent;
@@ -53,6 +54,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -64,6 +66,7 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
@@ -107,15 +110,13 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private MutableLiveData<Boolean> driverReached;
     LatLng startPosition, endPosition;
     boolean lastTrip = true;
-    boolean tripStarted=false;
+    boolean tripStarted = false;
     ValueAnimator polylineAnimator;
-    private final int PADDING=90;
+    private final int PADDING = 90;
     Runnable animationTask;
-    ExtendedFloatingActionButton cancel_ride;
-    FloatingActionButton driver_info;
     private MarkerOptions markerOptions;
     private Marker tripLocation;
-    Dialog infoDialog, cancelDialog;
+    FragmentHomeBinding binding;
 
     public HomeFragment() {
 
@@ -144,20 +145,24 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         driverReached = new MutableLiveData<>(false);
     }
-    
+
     @SuppressLint({"MissingPermission", "NewApi"})
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
-        mMapView = view.findViewById(R.id.mapView2);
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentHomeBinding.inflate(getLayoutInflater());
+        mMapView = binding.mapView2;
         initGoogleMap(savedInstanceState);
-        confirmButton = view.findViewById(R.id.floating_action_button);
+        confirmButton = binding.floatingActionButton;
         confirmedDriver = HomeFragmentArgs.fromBundle(getArguments()).getConfirmDriver();
-        cancel_ride = view.findViewById(R.id.cancel_ride);
+        MaterialCardView driverInfoCard = binding.driverInfoCard;
         driverReached.observe(getViewLifecycleOwner(), r -> {
             if (r && lastTrip) {
                 lastTrip = false;
-                cancel_ride.setVisibility(View.GONE);
+                binding.cancelRideBtn.setVisibility(View.INVISIBLE);
+                binding.timeEstimate.setText(R.string.arrival_time);
+                LocalDateTime dateTime = LocalDateTime.now().plus(Duration.of((int)confirmedDriver.getEstimatedArrival(), ChronoUnit.MINUTES));
+                @SuppressLint("DefaultLocale") String arrival_time = String.format("%02d:%02d",dateTime.getHour(), dateTime.getMinute());
+                binding.timeEstimateValue.setText(arrival_time);
                 endAddress = HomeFragmentArgs.fromBundle(getArguments()).getDriverDest();
                 fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
                 fusedLocationClient.getLastLocation()
@@ -166,20 +171,42 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                                 LatLng start = new LatLng(location.getLatitude(), location.getLongitude());
                                 appMap.clear();
                                 appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
-                                markerOptions=new MarkerOptions();
+                                markerOptions = new MarkerOptions();
                                 markerOptions.position(start).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car));
-                                markerOptions.rotation(location.getBearing()).anchor((float)0.5,(float)0.5);
-                                tripLocation=appMap.addMarker(markerOptions);
+                                markerOptions.rotation(location.getBearing()).anchor((float) 0.5, (float) 0.5);
+                                tripLocation = appMap.addMarker(markerOptions);
                                 getDirections(start, endAddress.getLatLng(), false);
-                                CameraUpdate cameraUpdate=modifyMapZoom(location,endAddress);
+                                CameraUpdate cameraUpdate = modifyMapZoom(location, endAddress);
                                 appMap.animateCamera(cameraUpdate);
-                                tripStarted=true;
+                                tripStarted = true;
                                 appMap.setMyLocationEnabled(false);
                             }
                         });
             }
         });
 
+
+        binding.cancelRideBtn.setOnClickListener(cr -> {
+            Dialog cancelDialog = new Dialog(requireActivity());
+            cancelDialog.setContentView(R.layout.cancel_ride_dialog);
+            cancelDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            cancelDialog.show();
+            MaterialButton acceptButton = cancelDialog.findViewById(R.id.accept_btn);
+            MaterialButton cancelButton = cancelDialog.findViewById(R.id.cancel_btn);
+            acceptButton.setOnClickListener(acceptView -> {
+                confirmButton.setVisibility(View.VISIBLE);
+                binding.driverInfoCard.setVisibility(View.GONE);
+                lastTrip = true;
+                confirmedDriver = null;
+                handler.removeCallbacks(animationTask);
+                endAddress = null;
+                driverReached.setValue(false);
+                polylineAnimator.end();
+                appMap.clear();
+                cancelDialog.dismiss();
+            });
+            cancelButton.setOnClickListener(cancelView -> cancelDialog.dismiss());
+        });
         confirmButton.setOnClickListener(v -> {
             if (endAddress != null && checkPermission()) {
                 fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
@@ -212,7 +239,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 if (checkPermission()) {
                     fusedLocationClient.getLastLocation().addOnSuccessListener(HomeFragment.super.requireActivity(), location -> {
                         if (location != null) {
-                            CameraUpdate cameraUpdate=modifyMapZoom(location,endAddress);
+                            CameraUpdate cameraUpdate = modifyMapZoom(location, endAddress);
                             appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
                             getDirections(new LatLng(location.getLatitude(), location.getLongitude()), endAddress.getLatLng(), false);
                             appMap.animateCamera(cameraUpdate);
@@ -229,59 +256,16 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         });
 
         if (confirmedDriver != null) {
+            driverInfoCard.setVisibility(View.VISIBLE);
             confirmButton.setVisibility(View.GONE);
-            driver_info = view.findViewById(R.id.driver_info);
-            cancel_ride.setOnClickListener(v -> {
-                cancelDialog = new Dialog(requireActivity());
-                cancelDialog.setContentView(R.layout.cancel_ride_dialog);
-                cancelDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                cancelDialog.show();
-                MaterialButton acceptButton = cancelDialog.findViewById(R.id.accept_btn);
-                MaterialButton cancelButton = cancelDialog.findViewById(R.id.cancel_btn);
-                acceptButton.setOnClickListener(acceptView -> {
-                    confirmButton.setVisibility(View.VISIBLE);
-                    cancel_ride.setVisibility(View.GONE);
-                    driver_info.setVisibility(View.GONE);
-                    lastTrip = true;
-                    confirmedDriver = null;
-                    handler.removeCallbacks(animationTask);
-                    endAddress = null;
-                    driverReached.setValue(false);
-                    polylineAnimator.end();
-                    appMap.clear();
-                    cancelDialog.dismiss();
-                });
-
-                cancelButton.setOnClickListener(cancelView -> cancelDialog.dismiss());
-
-            });
-
-            driver_info.setOnClickListener(v -> {
-                infoDialog = new Dialog(requireActivity());
-                infoDialog.setContentView(R.layout.driver_info_dialog);
-                infoDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                infoDialog.show();
-                MaterialTextView driver_pickup_time = infoDialog.findViewById(R.id.pickup_time_placeholder);
-                MaterialTextView driver_arrival_time = infoDialog.findViewById(R.id.arrival_time_placeholder);
-                LocalDateTime dateTime = LocalDateTime.now().plus(Duration.of((int)confirmedDriver.getEstimatedArrival(), ChronoUnit.MINUTES));
-                String arrival_time = String.format("%02d:%02d",dateTime.getHour(), dateTime.getMinute());
-                dateTime = LocalDateTime.now().plus(Duration.of((int)confirmedDriver.getEstimatedPickup() / 10, ChronoUnit.MINUTES));
-                String pickup_time = String.format("%02d:%02d",dateTime.getHour(), dateTime.getMinute());
-                driver_pickup_time.setText(pickup_time);
-                driver_arrival_time.setText(arrival_time);
-                MaterialTextView driver_name = infoDialog.findViewById(R.id.driver_name_placeholder);
-                MaterialTextView driver_plate = infoDialog.findViewById(R.id.driver_plate_placeholder);
-//                MaterialTextView driver_carBrand = infoDialog.findViewById(R.id.driver_carBrand);
-//                MaterialTextView driver_cardModel = infoDialog.findViewById(R.id.driver_carModel);
-//                driver_cardModel.setText(confirmedDriver.getCarModel());
-//                driver_carBrand.setText(confirmedDriver.getCarBrand());
-
-                driver_name.setText(confirmedDriver.getName());
-                driver_plate.setText(confirmedDriver.getPlate());
-            });
-            driver_info.setVisibility(View.VISIBLE);
-            cancel_ride.setVisibility(View.VISIBLE);
+            binding.platePlaceholder.setText(confirmedDriver.getPlate());
+            binding.driverNameTextview.setText(confirmedDriver.getName());
+            String fullDrive = confirmedDriver.getBrand() + " " + confirmedDriver.getCarModel();
+            binding.modelBrandPlaceholder.setText(fullDrive);
             LatLng start = new LatLng(confirmedDriver.getLatitude(), confirmedDriver.getLongitude());
+            LocalDateTime dateTime = LocalDateTime.now().plus(Duration.of((int)confirmedDriver.getEstimatedPickup() / 10, ChronoUnit.MINUTES));
+            @SuppressLint("DefaultLocale") String pickup_time = String.format("%02d:%02d",dateTime.getHour(), dateTime.getMinute());
+            binding.timeEstimateValue.setText(pickup_time);
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
             fusedLocationClient.getLastLocation()
                     .addOnSuccessListener(requireActivity(), location -> {
@@ -292,33 +276,35 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     });
         }
 
-        return view;
+        return binding.getRoot();
     }
-    private CameraUpdate modifyMapZoom(Location startlocation, Place destination){
+
+    private CameraUpdate modifyMapZoom(Location startlocation, Place destination) {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         builder.include(Objects.requireNonNull(destination.getLatLng()));
         builder.include(new LatLng(startlocation.getLatitude(), startlocation.getLongitude()));
         LatLngBounds bounds = builder.build();
         return CameraUpdateFactory.newLatLngBounds(bounds, PADDING);
     }
+
     @SuppressLint("MissingPermission")
     private void updateMap() {
         if (endAddress != null) {
             if (checkPermission()) {
                 fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
-                    if (location != null){
-                        if(tripStarted){
-                            tripLocation.setPosition(new LatLng(location.getLatitude(),location.getLongitude()));
-                            markerOptions.rotation(location.getBearing()).anchor((float)0.5,(float)0.5);
+                    if (location != null) {
+                        if (tripStarted) {
+                            tripLocation.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
+                            markerOptions.rotation(location.getBearing()).anchor((float) 0.5, (float) 0.5);
                         }
-                        if(HaversineDistance.distance(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), new LatLng(location.getLatitude(), location.getLongitude())) >= 30) {
+                        if (HaversineDistance.distance(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), new LatLng(location.getLatitude(), location.getLongitude())) >= 30) {
                             currentLocation = location;
                             appMap.clear();
                             appMap.addMarker(new MarkerOptions().position(Objects.requireNonNull(endAddress.getLatLng())));
-                            if(tripStarted){
-                                markerOptions.position(new LatLng(location.getLatitude(),location.getLongitude())).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car));
-                                markerOptions.rotation(location.getBearing()).anchor((float)0.5,(float)0.5);
-                                tripLocation=appMap.addMarker(markerOptions);
+                            if (tripStarted) {
+                                markerOptions.position(new LatLng(location.getLatitude(), location.getLongitude())).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car));
+                                markerOptions.rotation(location.getBearing()).anchor((float) 0.5, (float) 0.5);
+                                tripLocation = appMap.addMarker(markerOptions);
                             }
                             if (HaversineDistance.distance(new LatLng(location.getLatitude(), location.getLongitude()), endAddress.getLatLng()) <= 30) {
                                 Dialog finishTrip = new Dialog(requireActivity());
@@ -327,8 +313,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                                 finishTrip.show();
                                 finishTrip.findViewById(R.id.done_button).setOnClickListener(c -> finishTrip.dismiss());
                                 confirmButton.setVisibility(View.VISIBLE);
-                                cancel_ride.setVisibility(View.GONE);
-                                driver_info.setVisibility(View.GONE);
+                                binding.driverInfoCard.setVisibility(View.GONE);
                                 lastTrip = true;
                                 confirmedDriver = null;
                                 handler.removeCallbacks(animationTask);
@@ -336,7 +321,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                                 driverReached.setValue(false);
                                 polylineAnimator.end();
                                 appMap.clear();
-                                if(checkPermission())
+                                if (checkPermission())
                                     appMap.setMyLocationEnabled(true);
                             } else {
                                 getDirections(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), endAddress.getLatLng(), false);
@@ -358,8 +343,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 Route mainRoute = Objects.requireNonNull(directionResponse).getRoutes().get(0);
                 String polylinePoint = mainRoute.getOverviewPolyline().getPoints();
                 PolylineOptions polylineOptions = new PolylineOptions();
-                polylineOptions.color(Color.BLUE);
-                polylineOptions.width(10);
+                polylineOptions.color(Color.WHITE);
+                polylineOptions.width(7);
                 polylineOptions.addAll(PolyUtil.decode(polylinePoint));
                 if (!playAnimation) appMap.addPolyline(polylineOptions);
                 if (playAnimation)
@@ -389,7 +374,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
         PolylineOptions blackPolylineOptions = new PolylineOptions();
         blackPolylineOptions.width(5);
-        blackPolylineOptions.color(Color.BLACK);
+        blackPolylineOptions.color(Color.WHITE);
         blackPolylineOptions.startCap(new SquareCap());
         blackPolylineOptions.endCap(new SquareCap());
         blackPolylineOptions.jointType(ROUND);
@@ -536,6 +521,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NotNull GoogleMap map) {
         appMap = map;
+        MapStyleOptions mapStyleOptions = MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.style_map);
+        appMap.setMapStyle(mapStyleOptions);
         if (checkPermission()) {
             fusedLocationClient.getLastLocation().addOnSuccessListener(this.requireActivity(), location -> {
                 if (location != null) {

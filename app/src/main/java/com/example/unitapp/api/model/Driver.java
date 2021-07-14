@@ -11,31 +11,37 @@ public class Driver implements Parcelable {
 
     @SerializedName("name")
     @Expose
-    String name;
+    private String name;
     @SerializedName("latitude")
     @Expose
-    double latitude;
+    private double latitude;
     @SerializedName("longitude")
     @Expose
-    double longitude;
+    private double longitude;
     @SerializedName("capacity")
     @Expose
-    int capacity;
+    private int capacity;
     @SerializedName("plate")
     @Expose
-    String plate;
+    private String plate;
     @SerializedName("estimated_pickup")
     @Expose
-    double estimatedPickup;
+    private double estimatedPickup;
     @SerializedName("estimated_price")
     @Expose
-    int estimatedPrice;
+    private int estimatedPrice;
     @SerializedName("estimated_arrival")
     @Expose
-    double estimatedArrival;
+    private double estimatedArrival;
     @SerializedName("service_id")
     @Expose
-    int serviceId;
+    private int serviceId;
+    @SerializedName("car_model")
+    @Expose
+    private String carModel;
+    @SerializedName("brand")
+    @Expose
+    private String brand;
 
     /**
      * No args constructor for use in serialization
@@ -53,10 +59,12 @@ public class Driver implements Parcelable {
      * @param estimatedArrival
      * @param estimatedPickup
      * @param serviceId
+     * @param brand
      * @param longitude
      * @param capacity
+     * @param carModel
      */
-    public Driver(String name, double latitude, double longitude, int capacity, String plate, double estimatedPickup, int estimatedPrice, double estimatedArrival, int serviceId) {
+    public Driver(String name, double latitude, double longitude, int capacity, String plate, double estimatedPickup, int estimatedPrice, double estimatedArrival, int serviceId, String carModel, String brand) {
         super();
         this.name = name;
         this.latitude = latitude;
@@ -67,6 +75,8 @@ public class Driver implements Parcelable {
         this.estimatedPrice = estimatedPrice;
         this.estimatedArrival = estimatedArrival;
         this.serviceId = serviceId;
+        this.carModel = carModel;
+        this.brand = brand;
     }
 
     protected Driver(Parcel in) {
@@ -79,6 +89,8 @@ public class Driver implements Parcelable {
         estimatedPrice = in.readInt();
         estimatedArrival = in.readDouble();
         serviceId = in.readInt();
+        carModel = in.readString();
+        brand = in.readString();
     }
 
     public static final Creator<Driver> CREATOR = new Creator<Driver>() {
@@ -137,7 +149,7 @@ public class Driver implements Parcelable {
         return estimatedPickup;
     }
 
-    public void setEstimatedPickup(int estimatedPickup) {
+    public void setEstimatedPickup(double estimatedPickup) {
         this.estimatedPickup = estimatedPickup;
     }
 
@@ -165,6 +177,21 @@ public class Driver implements Parcelable {
         this.serviceId = serviceId;
     }
 
+    public String getCarModel() {
+        return carModel;
+    }
+
+    public void setCarModel(String carModel) {
+        this.carModel = carModel;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
 
     @Override
     public int describeContents() {
@@ -182,5 +209,7 @@ public class Driver implements Parcelable {
         parcel.writeInt(estimatedPrice);
         parcel.writeDouble(estimatedArrival);
         parcel.writeInt(serviceId);
+        parcel.writeString(carModel);
+        parcel.writeString(brand);
     }
 }

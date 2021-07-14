@@ -28,6 +28,7 @@ import com.example.unitapp.repository.Resource;
 import com.example.unitapp.repository.Status;
 import com.example.unitapp.viewModel.UserViewModel;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +38,7 @@ public class RegisterFragment extends Fragment {
     private EditText username;
     private EditText password;
     private EditText phone;
-    private CircularProgressIndicator loading;
+    private LinearProgressIndicator loading;
     private UserViewModel viewModel;
 
     @Nullable
@@ -64,11 +65,11 @@ public class RegisterFragment extends Fragment {
     }
 
     private void tryRegister(View v) {
-        UnitApp app = ((UnitApp)requireActivity().getApplication());
+        UnitApp app = ((UnitApp) requireActivity().getApplication());
         Integer lPhone = Integer.valueOf(this.phone.getText().toString());
         RegisterCredentials credentials = new RegisterCredentials(username.getText().toString(), password.getText().toString(), lPhone);
         app.getUserRepository().register(credentials).observe(getViewLifecycleOwner(), r -> {
-            if(r.getStatus() == Status.SUCCESS) {
+            if (r.getStatus() == Status.SUCCESS) {
                 loading.setVisibility(View.GONE);
                 app.getPreferences().setAuthToken(r.getData().getToken());
                 app.getPreferences().setUberToken(r.getData().getUberId());
