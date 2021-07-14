@@ -264,13 +264,18 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 MaterialTextView driver_pickup_time = infoDialog.findViewById(R.id.pickup_time_placeholder);
                 MaterialTextView driver_arrival_time = infoDialog.findViewById(R.id.arrival_time_placeholder);
                 LocalDateTime dateTime = LocalDateTime.now().plus(Duration.of((int)confirmedDriver.getEstimatedArrival(), ChronoUnit.MINUTES));
-                String arrival_time = dateTime.getHour() + ":" + dateTime.getMinute();
+                String arrival_time = String.format("%02d:%02d",dateTime.getHour(), dateTime.getMinute());
                 dateTime = LocalDateTime.now().plus(Duration.of((int)confirmedDriver.getEstimatedPickup() / 10, ChronoUnit.MINUTES));
-                String pickup_time = dateTime.getHour() + ":" + dateTime.getMinute();
+                String pickup_time = String.format("%02d:%02d",dateTime.getHour(), dateTime.getMinute());
                 driver_pickup_time.setText(pickup_time);
                 driver_arrival_time.setText(arrival_time);
                 MaterialTextView driver_name = infoDialog.findViewById(R.id.driver_name_placeholder);
                 MaterialTextView driver_plate = infoDialog.findViewById(R.id.driver_plate_placeholder);
+//                MaterialTextView driver_carBrand = infoDialog.findViewById(R.id.driver_carBrand);
+//                MaterialTextView driver_cardModel = infoDialog.findViewById(R.id.driver_carModel);
+//                driver_cardModel.setText(confirmedDriver.getCarModel());
+//                driver_carBrand.setText(confirmedDriver.getCarBrand());
+
                 driver_name.setText(confirmedDriver.getName());
                 driver_plate.setText(confirmedDriver.getPlate());
             });

@@ -75,7 +75,7 @@
     <string name="on_your_first_ride">en tu primer viaje!</string>
     <string name="phone_number">Número de teléfono</string>
     <string name="cancel_ride">Cancelar viaje</string>
-    <string name="driver_name">Nombre del conductor:</string>
+    <string name="driver_name">Nombre: </string>
     <string name="driver_plate">Patente:</string>
     <string name="are_you_sure_you_want_to_cancel_this_ride">Seguro deseas cancelar el viaje?</string>
     <string name="pickup_time">Hora de recogida:</string>
