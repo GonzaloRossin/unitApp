@@ -158,7 +158,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         driverReached.observe(getViewLifecycleOwner(), r -> {
             if (r && lastTrip) {
                 lastTrip = false;
-                binding.cancelRideBtn.setVisibility(View.INVISIBLE);
                 binding.timeEstimate.setText(R.string.arrival_time);
                 LocalDateTime dateTime = LocalDateTime.now().plus(Duration.of((int)confirmedDriver.getEstimatedArrival(), ChronoUnit.MINUTES));
                 @SuppressLint("DefaultLocale") String arrival_time = String.format("%02d:%02d",dateTime.getHour(), dateTime.getMinute());

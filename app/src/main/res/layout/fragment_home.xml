@@ -36,7 +36,6 @@
         android:layout_gravity="bottom"
         android:layout_margin="10dp"
         android:elevation="16dp"
-        android:visibility="invisible"
         app:cardCornerRadius="3dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
