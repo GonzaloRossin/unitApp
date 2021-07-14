@@ -20,7 +20,7 @@ public class LoadingActivity extends AppCompatActivity {
         Intent intent;
         if(preferences.getAuthToken() != null) {
             intent = new Intent(LoadingActivity.this, MainActivity.class);
-        }else {
+        } else {
             intent = new Intent(LoadingActivity.this,LoginActivity.class);
         }
         startActivity(intent);

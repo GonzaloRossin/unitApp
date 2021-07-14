@@ -112,7 +112,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     boolean lastTrip = true;
     boolean tripStarted = false;
     ValueAnimator polylineAnimator;
-    private final int PADDING = 90;
+    private final int PADDING = 220;
     Runnable animationTask;
     private MarkerOptions markerOptions;
     private Marker tripLocation;
