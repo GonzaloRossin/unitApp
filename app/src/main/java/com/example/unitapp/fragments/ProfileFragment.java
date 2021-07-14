@@ -35,8 +35,11 @@ public class ProfileFragment extends Fragment {
             if(r.getStatus() == Status.SUCCESS) {
                 binding.profilePhone.setText(String.valueOf(Objects.requireNonNull(r.getData()).getPhone()));
                 binding.profileEmail.setText(r.getData().getEmail());
+                binding.cabify.setText(new StringBuilder().append(getString(R.string.link)).append(" Cabify").toString());
+                binding.uber.setText(new StringBuilder().append(getString(R.string.link)).append(" Uber").toString());
             }
         });
+
 
         return view;
     }
