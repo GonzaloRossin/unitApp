@@ -86,7 +86,7 @@ public class LoginFragment extends Fragment {
             case ERROR:
                 requireActivity().findViewById(R.id.login_progress_bar).setVisibility(View.GONE);
                 Error error = resource.getError();
-                Toast.makeText(requireContext(), Objects.requireNonNull(error).getCode() + ": " + error.getDescription(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), Objects.requireNonNull(error).getError().getCode() + ": " + error.getError().getMessage(), Toast.LENGTH_SHORT).show();
                 break;
         }
     }

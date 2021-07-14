@@ -3,56 +3,34 @@ package com.example.unitapp.api.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
 public class Error {
 
-    public static final int LOCAL_UNEXPECTED_ERROR = 10;
-
-    @SerializedName("code")
+    @SerializedName("error")
     @Expose
-    private Integer code;
-    @SerializedName("description")
-    @Expose
-    private String description;
-    @SerializedName("details")
-    @Expose
-    private List<String> details = null;
+    private Error__1 error;
 
-    public Error()  {
+    /**
+     * No args constructor for use in serialization
+     *
+     */
+    public Error() {
     }
 
-    public Error(Integer code, String description) {
-        this(code, description, null);
+    /**
+     *
+     * @param error
+     */
+    public Error(Error__1 error) {
+        super();
+        this.error = error;
     }
 
-    public Error(Integer code, String description, List<String> details) {
-        this.code = code;
-        this.description = description;
-        this.details = details;
+    public Error__1 getError() {
+        return error;
     }
 
-    public Integer getCode() {
-        return code;
+    public void setError(Error__1 error) {
+        this.error = error;
     }
 
-    public void setCode(Integer code) {
-        this.code = code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public List<String> getDetails() {
-        return details;
-    }
-
-    public void setDetails(List<String> details) {
-        this.details = details;
-    }
 }

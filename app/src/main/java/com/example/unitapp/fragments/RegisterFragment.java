@@ -92,7 +92,7 @@ public class RegisterFragment extends Fragment {
             case ERROR:
                 loading.setVisibility(View.GONE);
                 Error error = resource.getError();
-                Toast.makeText(requireContext(), Objects.requireNonNull(error).getCode() + ": " + error.getDescription(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), Objects.requireNonNull(error).getError().getCode() + ": " + error.getError().getMessage(), Toast.LENGTH_SHORT).show();
                 break;
         }
     }

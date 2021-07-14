@@ -54,19 +54,13 @@ public class ApiResponse<T> {
             return;
         }
 
-        if (message != null && message.trim().length() > 0) {
+        if (message.trim().length() > 0) {
             Gson gson = new Gson();
             this.error =  gson.fromJson(message, new TypeToken<Error>() {}.getType());
         }
     }
 
     private static Error buildError(String message) {
-        Error error = new Error(Error.LOCAL_UNEXPECTED_ERROR, "Unexpected error");
-        if (message != null) {
-            List<String> details = new ArrayList<>();
-            details.add(message);
-            error.setDetails(details);
-        }
-        return error;
+        return new Error();
     }
 }
