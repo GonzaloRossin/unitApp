@@ -68,10 +68,10 @@
     <string name="driver_information">Información del conductor</string>
     <string name="cancel_driver">Cancelar Viaje</string>
     <string name="only_for_today">Solo por hoy!</string>
-    <string name="get_100">Obtener $100</string>
-    <string name="get_300">Obtener $300</string>
+    <string name="get_100">-5%</string>
+    <string name="get_300">-30%</string>
     <string name="on_your_10th_ride">en tu viaje #10!</string>
-    <string name="get_200">Obtener $200</string>
+    <string name="get_200">-20%</string>
     <string name="on_your_first_ride">en tu primer viaje!</string>
     <string name="phone_number">Número de teléfono</string>
     <string name="cancel_ride">Cancelar viaje</string>
