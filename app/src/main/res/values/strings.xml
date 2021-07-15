@@ -99,4 +99,5 @@
     <string name="model_placeholder">Chevrolet Tahoe</string>
     <string name="plate_placeholder">4BCF82</string>
     <string name="placeholder_time_value">12:24</string>
+    <string name="upgrade_plan">Upgrade plan</string>
 </resources>

@@ -98,7 +98,7 @@
             android:layout_height="60dp"
             android:layout_marginTop="60dp"
             android:backgroundTint="#020202"
-            android:text="Upgrade plan"
+            android:text="@string/upgrade_plan"
             app:cornerRadius="10dp"
             app:icon="@drawable/ic_baseline_upgrade_24"
             app:layout_constraintEnd_toEndOf="parent"

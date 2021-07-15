@@ -94,4 +94,5 @@
     <string name="error_ocurred">\"Ocurrió un error: \"</string>
     <string name="log_out">Cerrar sesión</string>
     <string name="link">Inicia sesion con</string>
+    <string name="upgrade_plan">Convertite en premium</string>
 </resources>
