@@ -21,8 +21,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/log_out"
             android:layout_width="270dp"
-            android:layout_height="55dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="60dp"
             android:text="@string/log_out"
             android:textColor="#FFFFFF"
             app:backgroundTint="#F44336"
@@ -31,7 +30,36 @@
             app:iconTint="#FFFFFF"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/uber" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/cabify"
+            android:layout_width="270dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="100dp"
+            android:layout_marginEnd="100dp"
+            android:backgroundTint="#7350FF"
+            android:text="Link with Cabify"
+            app:cornerRadius="10dp"
+            app:icon="@drawable/cabify_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.497"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/upgrade_plan_btn" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/uber"
+            android:layout_width="270dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="100dp"
+            android:layout_marginEnd="100dp"
+            android:backgroundTint="#020202"
+            android:text="Link with Uber"
+            app:cornerRadius="10dp"
+            app:icon="@drawable/uber_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cabify" />
 
         <TextView
             android:id="@+id/profile_phone"
