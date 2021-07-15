@@ -1,4 +1,5 @@
 # unitApp
+Unit es una aplicación creada en Android Studio que ofrece la unificación de las distintas aplicaciones de viajes como Uber, Cabify, entre otros. El objetivo es presentarle a los usuarios las diferentes opciones que tiene para un viaje.
 
 ## Instructivo de instalación
 
