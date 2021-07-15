@@ -6,7 +6,7 @@
   
 * Clonar este repositorio desde la branch master y luego abrir el directorio donde se clono desde Android Studio.
 * Sincronizar los archivos gradle.
-* ya se podrá ejecutar la aplicación desde Android Studio.
+* a se podrá ejecutar la aplicación desde Android Studio.
 
 
 **Instalador de la aplicación**
@@ -15,6 +15,6 @@ modo desarrollador lo que le permitirá instalar aplicaciones de fuentes externa
 Android. Además, debe activar la opción de Depuración por USB.
 
 ## Instructivo de uso
-  En el siguiente link, (LINK A FIGMA), se provee un pequeño instructivo de como utilizar la aplicacion.
+  En el siguiente [link](https://www.figma.com/file/IiujCr2I7uV2U7vPX29hPT/Instructivo-de-uso-Unit-App?node-id=0%3A1) se provee un pequeño instructivo de como utilizar la aplicacion.
   
  ### De parte del equipo Unit, esperamos que disfrute su viaje!
